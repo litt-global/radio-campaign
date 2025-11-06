@@ -141,7 +141,7 @@ export default function Home() {
             <div className="space-y-2">
               <p className="text-xl text-gray-300 md:text-2xl text-balance">
                 Air your track across 40 global radio stations and tap into over 2 million listening hours. This is your
-                chance to get your music heard by Akon and his label
+                chance to get your music heard by Akon and his label.
               </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -193,7 +193,7 @@ export default function Home() {
               <div className={`absolute inset-0 bg-gradient-to-br ${pkg.color} pointer-events-none`} />
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-              <div className="relative space-y-6 p-6">
+              <div className="relative flex flex-col h-full space-y-6 p-6">
                 {/* Package Name */}
                 <div className="space-y-2">
                   <h3 className="text-2xl font-bold text-white">{pkg.name}</h3>
@@ -207,7 +207,7 @@ export default function Home() {
                 <p className="text-sm italic text-gray-300 border-l-2 border-[#E93CAC] pl-3">{pkg.quote}</p>
 
                 {/* Features */}
-                <ul className="space-y-3">
+                <ul className="flex-1 space-y-3">
                   {pkg.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm">
                       <Check className="h-5 w-5 shrink-0 text-[#E93CAC] mt-0.5" />
