@@ -1,114 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { Download, ArrowRight, X, LogOut } from "lucide-react"
+import { Download, ArrowRight, X, LogOut, Loader2 } from "lucide-react"
+import { getSubmissionsByPackage, updateSubmissionStatus, type AdminSubmission } from "@/app/actions/admin"
 
 type PageType = "spark" | "wave" | "prime" | "exec" | "icon"
 type ViewType = "new" | "programmed"
 
-type Submission = {
-  id: string
-  coverImage: string
-  song: string
-  introLiner: string
-  pronunciation: string
-  instagram: string
-  email: string
-  phone: string
-  status: "new" | "programmed"
-  notes?: string
-  page: PageType
-}
-
 export default function AdminDashboard() {
   const [activePage, setActivePage] = useState<PageType>("spark")
   const [activeView, setActiveView] = useState<ViewType>("new")
-
-  const [submissions, setSubmissions] = useState<Submission[]>([
-    {
-      id: "1",
-      coverImage:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BIG%20BOOBLAY%20-%20ITS%20MA%20LIFE%20SINGLE%20COVER-4mlvABDbRSupg6Qrjkiu7jZDVUiAp1.jpg",
-      song: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      introLiner:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      pronunciation:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      instagram: "@bigbooblay",
-      email: "bigbooblay@gmail.com",
-      phone: "+61 437 804 903",
-      status: "new",
-      page: "spark",
-    },
-    {
-      id: "2",
-      coverImage:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BIG%20BOOBLAY%20-%20ITS%20MA%20LIFE%20SINGLE%20COVER-4mlvABDbRSupg6Qrjkiu7jZDVUiAp1.jpg",
-      song: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      introLiner:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      pronunciation:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      instagram: "@bigbooblay",
-      email: "bigbooblay@gmail.com",
-      phone: "+61 437 804 903",
-      status: "new",
-      page: "wave",
-    },
-    {
-      id: "3",
-      coverImage:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BIG%20BOOBLAY%20-%20ITS%20MA%20LIFE%20SINGLE%20COVER-4mlvABDbRSupg6Qrjkiu7jZDVUiAp1.jpg",
-      song: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      introLiner:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      pronunciation:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      instagram: "@bigbooblay",
-      email: "bigbooblay@gmail.com",
-      phone: "+61 437 804 903",
-      status: "new",
-      page: "prime",
-    },
-    {
-      id: "4",
-      coverImage:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BIG%20BOOBLAY%20-%20ITS%20MA%20LIFE%20SINGLE%20COVER-4mlvABDbRSupg6Qrjkiu7jZDVUiAp1.jpg",
-      song: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      introLiner:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      pronunciation:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      instagram: "@bigbooblay",
-      email: "bigbooblay@gmail.com",
-      phone: "+61 437 804 903",
-      status: "new",
-      page: "exec",
-    },
-    {
-      id: "5",
-      coverImage:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/BIG%20BOOBLAY%20-%20ITS%20MA%20LIFE%20SINGLE%20COVER-4mlvABDbRSupg6Qrjkiu7jZDVUiAp1.jpg",
-      song: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      introLiner:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      pronunciation:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/10112025%20%281%29-N0RgHcxIgYkYXJn5dpfzZr8nnisHVQ.mp3",
-      instagram: "@bigbooblay",
-      email: "bigbooblay@gmail.com",
-      phone: "+61 437 804 903",
-      status: "new",
-      page: "icon",
-    },
-  ])
+  const [submissions, setSubmissions] = useState<AdminSubmission[]>([])
+  const [loading, setLoading] = useState(true)
 
   const [showNotesModal, setShowNotesModal] = useState(false)
-  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | null>(null)
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<number | null>(null)
   const [programmingNotes, setProgrammingNotes] = useState("")
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
+  const [updating, setUpdating] = useState(false)
 
   const pages = [
     { id: "spark" as PageType, name: "Spark", color: "from-pink-500 to-purple-500" },
@@ -118,9 +30,23 @@ export default function AdminDashboard() {
     { id: "icon" as PageType, name: "Icon", color: "from-pink-700 to-purple-700" },
   ]
 
-  const currentSubmissions = submissions.filter((sub) => sub.page === activePage && sub.status === activeView)
+  useEffect(() => {
+    async function fetchSubmissions() {
+      setLoading(true)
+      console.log("[v0] Fetching submissions for", activePage, activeView)
+      const result = await getSubmissionsByPackage(activePage, activeView)
+      if (result.success) {
+        console.log("[v0] Loaded submissions:", result.submissions.length)
+        setSubmissions(result.submissions)
+      } else {
+        console.error("[v0] Failed to load submissions:", result.error)
+      }
+      setLoading(false)
+    }
+    fetchSubmissions()
+  }, [activePage, activeView])
 
-  const handleMoveToProgrammed = (submissionId: string) => {
+  const handleMoveToProgrammed = (submissionId: number) => {
     setCurrentSubmissionId(submissionId)
     setShowNotesModal(true)
     setProgrammingNotes("")
@@ -135,13 +61,23 @@ export default function AdminDashboard() {
     setShowConfirmation(true)
   }
 
-  const handleConfirmMove = () => {
+  const handleConfirmMove = async () => {
     if (currentSubmissionId) {
-      setSubmissions((prev) =>
-        prev.map((sub) =>
-          sub.id === currentSubmissionId ? { ...sub, status: "programmed" as const, notes: programmingNotes } : sub,
-        ),
-      )
+      setUpdating(true)
+      console.log("[v0] Moving submission to programmed:", currentSubmissionId)
+      const result = await updateSubmissionStatus(currentSubmissionId, "programmed", programmingNotes)
+
+      if (result.success) {
+        console.log("[v0] Successfully moved submission")
+        const refreshResult = await getSubmissionsByPackage(activePage, activeView)
+        if (refreshResult.success) {
+          setSubmissions(refreshResult.submissions)
+        }
+      } else {
+        console.error("[v0] Failed to move submission:", result.error)
+        alert("Failed to update submission. Please try again.")
+      }
+      setUpdating(false)
     }
     setShowConfirmation(false)
     setCurrentSubmissionId(null)
@@ -155,13 +91,13 @@ export default function AdminDashboard() {
     setProgrammingNotes("")
   }
 
-  const handleDownloadAll = async (submission: Submission) => {
+  const handleDownloadAll = async (submission: AdminSubmission) => {
     const files = [
-      { url: submission.song, name: "song.mp3" },
-      { url: submission.introLiner, name: "intro-liner.mp3" },
-      { url: submission.pronunciation, name: "artist-pronunciation.mp3" },
-      { url: submission.coverImage, name: "cover-image.jpg" },
-    ]
+      submission.files.song && { url: submission.files.song.url, name: "song.mp3" },
+      submission.files.intro && { url: submission.files.intro.url, name: "intro-liner.mp3" },
+      submission.files.pronunciation && { url: submission.files.pronunciation.url, name: "artist-pronunciation.mp3" },
+      submission.files.cover && { url: submission.files.cover.url, name: "cover-image.jpg" },
+    ].filter(Boolean) as { url: string; name: string }[]
 
     for (const file of files) {
       try {
@@ -196,7 +132,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-[#2B0F45] to-black text-white">
-      {/* Header */}
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -223,7 +158,6 @@ export default function AdminDashboard() {
       </header>
 
       <div className="flex">
-        {/* Sidebar Navigation */}
         <aside className="w-64 min-h-[calc(100vh-73px)] border-r border-gray-800 bg-black/30 p-6">
           <nav className="space-y-2">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Campaign Tiers</p>
@@ -243,10 +177,8 @@ export default function AdminDashboard() {
           </nav>
         </aside>
 
-        {/* Main Content Area */}
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
-            {/* Page Header */}
             <div className="mb-8">
               <h2 className="text-4xl font-bold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent mb-2">
                 {pages.find((p) => p.id === activePage)?.name}
@@ -254,7 +186,6 @@ export default function AdminDashboard() {
               <p className="text-gray-400">Campaign management and analytics</p>
             </div>
 
-            {/* Toggle buttons for New Submissions and Programmed */}
             <div className="flex gap-4 mb-6">
               <button
                 onClick={() => setActiveView("new")}
@@ -279,56 +210,76 @@ export default function AdminDashboard() {
             </div>
 
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8 min-h-[500px]">
-              {currentSubmissions.length > 0 ? (
+              {loading ? (
+                <div className="flex items-center justify-center h-full min-h-[400px]">
+                  <div className="text-center space-y-4">
+                    <Loader2 className="w-12 h-12 mx-auto animate-spin text-pink-500" />
+                    <p className="text-gray-400">Loading submissions...</p>
+                  </div>
+                </div>
+              ) : submissions.length > 0 ? (
                 <div className="space-y-6">
-                  {currentSubmissions.map((submission) => (
+                  {submissions.map((submission) => (
                     <div
                       key={submission.id}
                       className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-pink-500/50 transition-all"
                     >
                       <div className="flex gap-6">
-                        {/* Cover Image */}
                         <div className="flex-shrink-0">
-                          <Image
-                            src={submission.coverImage || "/placeholder.svg"}
-                            alt="Single Cover"
-                            width={200}
-                            height={200}
-                            className="rounded-lg object-cover"
-                          />
+                          {submission.files.cover ? (
+                            <Image
+                              src={submission.files.cover.url || "/placeholder.svg"}
+                              alt="Single Cover"
+                              width={200}
+                              height={200}
+                              className="rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="w-[200px] h-[200px] bg-gray-700 rounded-lg flex items-center justify-center">
+                              <span className="text-gray-500">No cover</span>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Details Section */}
                         <div className="flex-1 space-y-4">
-                          {/* Audio Players */}
-                          <div className="space-y-3">
-                            <div>
-                              <label className="text-sm font-semibold text-pink-400 mb-1 block">Song (MP3)</label>
-                              <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
-                                <source src={submission.song} type="audio/mpeg" />
-                              </audio>
-                            </div>
-
-                            <div>
-                              <label className="text-sm font-semibold text-pink-400 mb-1 block">
-                                Artist Intro Liner (MP3)
-                              </label>
-                              <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
-                                <source src={submission.introLiner} type="audio/mpeg" />
-                              </audio>
-                            </div>
-
-                            <div>
-                              <label className="text-sm font-semibold text-pink-400 mb-1 block">
-                                Artist Name Pronunciation (MP3)
-                              </label>
-                              <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
-                                <source src={submission.pronunciation} type="audio/mpeg" />
-                              </audio>
-                            </div>
+                          <div className="mb-2">
+                            <h3 className="text-xl font-bold text-white">{submission.artistName}</h3>
+                            <p className="text-sm text-gray-400">{submission.packageName} Package</p>
                           </div>
 
-                          {/* Contact Information */}
+                          <div className="space-y-3">
+                            {submission.files.song && (
+                              <div>
+                                <label className="text-sm font-semibold text-pink-400 mb-1 block">Song (MP3)</label>
+                                <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
+                                  <source src={submission.files.song.url} type="audio/mpeg" />
+                                </audio>
+                              </div>
+                            )}
+
+                            {submission.files.intro && (
+                              <div>
+                                <label className="text-sm font-semibold text-pink-400 mb-1 block">
+                                  Artist Intro Liner (MP3)
+                                </label>
+                                <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
+                                  <source src={submission.files.intro.url} type="audio/mpeg" />
+                                </audio>
+                              </div>
+                            )}
+
+                            {submission.files.pronunciation && (
+                              <div>
+                                <label className="text-sm font-semibold text-pink-400 mb-1 block">
+                                  Artist Name Pronunciation (MP3)
+                                </label>
+                                <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
+                                  <source src={submission.files.pronunciation.url} type="audio/mpeg" />
+                                </audio>
+                              </div>
+                            )}
+                          </div>
+
                           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-700">
                             <div>
                               <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
@@ -384,7 +335,7 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center h-full min-h-[400px]">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 mx-auto bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] rounded-full flex items-center justify-center">
                       <span className="text-2xl font-bold">{pages.find((p) => p.id === activePage)?.name[0]}</span>
@@ -475,14 +426,23 @@ export default function AdminDashboard() {
                   onClick={handleCancelMove}
                   variant="outline"
                   className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800 bg-transparent"
+                  disabled={updating}
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConfirmMove}
                   className="flex-1 bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] hover:from-[#D02A9C] hover:to-[#963AB7] text-white"
+                  disabled={updating}
                 >
-                  Confirm
+                  {updating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Confirm"
+                  )}
                 </Button>
               </div>
             </div>
