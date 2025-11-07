@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, ImageIcon, Mic, CheckCircle2, CreditCard } from "lucide-react"
+import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -59,6 +59,7 @@ function CheckoutForm() {
   const [pronunciationPreviewUrl, setPronunciationPreviewUrl] = useState<string | null>(null)
 
   const [isProcessing, setIsProcessing] = useState(false)
+  const [processingStep, setProcessingStep] = useState<string>("")
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
   const [cardLast4, setCardLast4] = useState<string | null>("0000")
@@ -130,10 +131,12 @@ function CheckoutForm() {
     }
 
     setIsProcessing(true)
+    setProcessingStep("Validating card details...")
 
     try {
       const formData = new FormData(e.currentTarget)
       const cardName = formData.get("cardName") as string
+      const email = formData.get("email") as string
 
       const cardNumberElement = elements.getElement(CardNumberElement)
 
@@ -153,7 +156,8 @@ function CheckoutForm() {
         throw new Error(pmError.message || "Failed to process card details")
       }
 
-      // Process payment on backend with payment method
+      setProcessingStep("Processing payment...")
+
       const paymentResponse = await fetch("/api/process-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -161,6 +165,7 @@ function CheckoutForm() {
           paymentMethodId: paymentMethod.id,
           packageName,
           packagePrice,
+          email,
         }),
       })
 
@@ -173,7 +178,8 @@ function CheckoutForm() {
       setPaymentIntentId(piId)
       setCardLast4(cardLast4)
 
-      // Upload files
+      setProcessingStep("Uploading your files...")
+
       const uploadFile = async (file: File, fileType: string) => {
         const metadataForm = new FormData()
         metadataForm.append("fileName", file.name)
@@ -215,12 +221,14 @@ function CheckoutForm() {
         pronunciationFile ? uploadFile(pronunciationFile, "pronunciation") : Promise.resolve(undefined),
       ])
 
+      setProcessingStep("Finalizing your campaign...")
+
       const result = await saveCampaignPurchase({
         packageName,
         packagePrice,
         artistName: formData.get("artistName") as string,
         instagramHandle: formData.get("instagram") as string,
-        email: formData.get("email") as string,
+        email,
         phone: formData.get("phone") as string,
         songUrl,
         coverImageUrl: coverUrl,
@@ -237,11 +245,13 @@ function CheckoutForm() {
 
       setTimeout(() => {
         setIsProcessing(false)
+        setProcessingStep("")
         setShowConfirmation(true)
       }, 1000)
     } catch (error) {
       console.error("[v0] Error submitting campaign:", error)
       setIsProcessing(false)
+      setProcessingStep("")
       alert(error instanceof Error ? error.message : "There was an error processing your purchase. Please try again.")
     }
   }
@@ -596,7 +606,14 @@ function CheckoutForm() {
                 className="w-full bg-[#E93CAC] text-white hover:bg-[#E93CAC]/90 font-bold text-lg py-6"
                 disabled={isProcessing || !stripe}
               >
-                {isProcessing ? "Processing..." : `Purchase ${packageName} - ${packagePrice}`}
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    {processingStep}
+                  </span>
+                ) : (
+                  `Purchase ${packageName} - ${packagePrice}`
+                )}
               </Button>
 
               <p className="text-center text-sm text-gray-400">

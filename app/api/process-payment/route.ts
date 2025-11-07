@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: NextRequest) {
   try {
-    const { paymentMethodId, packageName, packagePrice } = await req.json()
+    const { paymentMethodId, packageName, packagePrice, email } = await req.json()
 
     if (!paymentMethodId || !packagePrice) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       payment_method: paymentMethodId,
       confirm: true,
       description: `LITT Live ${packageName} Campaign`,
+      receipt_email: email || undefined,
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: "never",
