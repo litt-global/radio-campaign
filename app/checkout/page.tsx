@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, ImageIcon, Mic, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
+import { Music, ImageIcon, Mic, Loader2, CheckCircle2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
-import { createCampaignPurchase } from "@/app/actions/campaign"
-
-const MAX_FILE_SIZE = 4.5 * 1024 * 1024 // 4.5 MB in bytes
+import { saveCampaignPurchase } from "@/app/actions/campaign"
 
 export default function CheckoutPage() {
   const searchParams = useSearchParams()
@@ -30,10 +28,7 @@ export default function CheckoutPage() {
   const [introPreviewUrl, setIntroPreviewUrl] = useState<string | null>(null)
   const [pronunciationPreviewUrl, setPronunciationPreviewUrl] = useState<string | null>(null)
 
-  const [songError, setSongError] = useState<string | null>(null)
-  const [coverError, setCoverError] = useState<string | null>(null)
   const [introError, setIntroError] = useState<string | null>(null)
-  const [pronunciationError, setPronunciationError] = useState<string | null>(null)
 
   const [cardNumber, setCardNumber] = useState("")
   const [expiry, setExpiry] = useState("")
@@ -55,20 +50,9 @@ export default function CheckoutPage() {
     setter: (file: File | null) => void,
     previewSetter: (url: string | null) => void,
     oldPreviewUrl: string | null,
-    errorSetter: (error: string | null) => void,
   ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE) {
-        errorSetter(`File size exceeds 4.5 MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`)
-        setter(null)
-        previewSetter(null)
-        return
-      }
-
-      errorSetter(null)
       if (oldPreviewUrl) {
         URL.revokeObjectURL(oldPreviewUrl)
       }
@@ -84,14 +68,6 @@ export default function CheckoutPage() {
   const handleIntroLinerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-
-      if (file.size > MAX_FILE_SIZE) {
-        setIntroError(`File size exceeds 4.5 MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`)
-        setIntroLiner(null)
-        setIntroPreviewUrl(null)
-        return
-      }
-
       if (introPreviewUrl) {
         URL.revokeObjectURL(introPreviewUrl)
       }
@@ -108,21 +84,10 @@ export default function CheckoutPage() {
   const handlePronunciationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-
-      if (file.size > MAX_FILE_SIZE) {
-        setPronunciationError(
-          `File size exceeds 4.5 MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`,
-        )
-        setPronunciationFile(null)
-        setPronunciationPreviewUrl(null)
-        return
-      }
-
       if (pronunciationPreviewUrl) {
         URL.revokeObjectURL(pronunciationPreviewUrl)
       }
       setPronunciationPreviewUrl(null)
-      setPronunciationError(null)
       setPronunciationFile(file)
       const newPreviewUrl = URL.createObjectURL(file)
       setTimeout(() => {
@@ -157,29 +122,6 @@ export default function CheckoutPage() {
     setExpiry(formatted)
   }
 
-  const uploadFileToAPI = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
-    try {
-      const formData = new FormData()
-      formData.append("file", file)
-
-      const response = await fetch("/api/blob-upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      const result = await response.json()
-
-      if (!result.success) {
-        console.error("[v0] Upload failed:", result.error)
-      }
-
-      return result
-    } catch (error) {
-      console.error("[v0] Error uploading file:", error)
-      return { success: false, error: "Failed to upload file" }
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -192,88 +134,84 @@ export default function CheckoutPage() {
       return
     }
 
-    if (songError || coverError || introError || pronunciationError) {
-      alert("Please fix file size errors before submitting.")
-      return
-    }
-
     setIsProcessing(true)
 
     try {
-      if (!songFile || !coverImage || !introLiner) {
-        alert("Please upload all required files")
-        setIsProcessing(false)
-        return
+      const uploadFile = async (file: File, fileType: string) => {
+        // Step 1: Get signed upload URL from API
+        const metadataForm = new FormData()
+        metadataForm.append("fileName", file.name)
+        metadataForm.append("fileType", fileType)
+        metadataForm.append("contentType", file.type)
+
+        const urlResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: metadataForm,
+        })
+
+        if (!urlResponse.ok) {
+          const errorText = await urlResponse.text()
+          console.error("[v0] Upload URL error:", errorText)
+          throw new Error(`Failed to get upload URL for ${fileType}`)
+        }
+
+        const { signedUrl, path, token } = await urlResponse.json()
+
+        // Step 2: Upload file directly to Supabase Storage using signed URL
+        const uploadResponse = await fetch(signedUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+            "x-upsert": "false",
+          },
+        })
+
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text()
+          console.error("[v0] Upload error:", errorText)
+          throw new Error(`Failed to upload ${fileType}`)
+        }
+
+        // Step 3: Construct public URL
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        return `${supabaseUrl}/storage/v1/object/public/campaign-files/${path}`
       }
 
-      console.log("[v0] Starting file uploads...")
-
-      const [songResult, coverResult, introResult, pronunciationResult] = await Promise.all([
-        uploadFileToAPI(songFile),
-        uploadFileToAPI(coverImage),
-        uploadFileToAPI(introLiner),
-        pronunciationFile ? uploadFileToAPI(pronunciationFile) : Promise.resolve({ success: true, url: null }),
+      const [songUrl, coverUrl, introUrl, pronunciationUrl] = await Promise.all([
+        songFile ? uploadFile(songFile, "song") : Promise.resolve(""),
+        coverImage ? uploadFile(coverImage, "cover") : Promise.resolve(""),
+        introLiner ? uploadFile(introLiner, "intro") : Promise.resolve(""),
+        pronunciationFile ? uploadFile(pronunciationFile, "pronunciation") : Promise.resolve(undefined),
       ])
 
-      if (!songResult.success || !coverResult.success || !introResult.success) {
-        const errorMsg = songResult.error || coverResult.error || introResult.error || "Failed to upload files"
-        alert(`Upload failed: ${errorMsg}`)
-        setIsProcessing(false)
-        return
-      }
-
-      console.log("[v0] Files uploaded successfully")
-
-      const result = await createCampaignPurchase({
+      const result = await saveCampaignPurchase({
         packageName,
         packagePrice,
         artistName: formData.get("artistName") as string,
-        instagram: formData.get("instagram") as string,
+        instagramHandle: formData.get("instagram") as string,
         email: formData.get("email") as string,
         phone: formData.get("phone") as string,
-        cardholderName: formData.get("cardName") as string,
+        songUrl,
+        coverImageUrl: coverUrl,
+        introLinerUrl: introUrl,
+        pronunciationUrl,
+        cardName: formData.get("cardName") as string,
         cardNumber: cleanCardNumber,
-        files: {
-          song: {
-            name: songFile.name,
-            size: songFile.size,
-            url: songResult.url!,
-          },
-          cover: {
-            name: coverImage.name,
-            size: coverImage.size,
-            url: coverResult.url!,
-          },
-          intro: {
-            name: introLiner.name,
-            size: introLiner.size,
-            url: introResult.url!,
-          },
-          ...(pronunciationResult.url && pronunciationFile
-            ? {
-                pronunciation: {
-                  name: pronunciationFile.name,
-                  size: pronunciationFile.size,
-                  url: pronunciationResult.url,
-                },
-              }
-            : {}),
-        },
       })
 
-      if (result.success) {
-        setTimeout(() => {
-          setIsProcessing(false)
-          setShowConfirmation(true)
-        }, 2000)
-      } else {
-        alert("Failed to process payment. Please try again.")
-        setIsProcessing(false)
+      if (!result.success) {
+        throw new Error(result.error || "Failed to save campaign")
       }
+
+      setTimeout(() => {
+        setIsProcessing(false)
+        setShowConfirmation(true)
+      }, 2000)
     } catch (error) {
-      console.error("[v0] Error processing checkout:", error)
-      alert("An error occurred during upload. Please try again.")
+      console.error("[v0] Error submitting campaign:", error)
       setIsProcessing(false)
+      alert("There was an error processing your purchase. Please try again.")
     }
   }
 
@@ -368,24 +306,20 @@ export default function CheckoutPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="song" className="text-white text-base">
-                    Song File (MP3) * <span className="text-sm text-gray-400">(Max 4.5 MB)</span>
+                    Song File (MP3) *
                   </Label>
                   <div className="relative">
                     <Input
                       id="song"
                       type="file"
                       accept="audio/mp3,audio/mpeg"
-                      onChange={(e) =>
-                        handleFileChange(e, setSongFile, setSongPreviewUrl, songPreviewUrl, setSongError)
-                      }
+                      onChange={(e) => handleFileChange(e, setSongFile, setSongPreviewUrl, songPreviewUrl)}
                       className="hidden"
                       required
                     />
                     <label
                       htmlFor="song"
-                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
-                        songError ? "border-red-500/50" : "border-pink-500/50"
-                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50`}
+                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-pink-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50"
                     >
                       <Music className="h-8 w-8 text-[#E93CAC]" />
                       <div className="text-center">
@@ -400,12 +334,6 @@ export default function CheckoutPage() {
                       </div>
                     </label>
                   </div>
-                  {songError && (
-                    <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                      <p className="text-sm text-red-400">{songError}</p>
-                    </div>
-                  )}
                   {songPreviewUrl && (
                     <div className="mt-4 p-4 bg-black/40 rounded-lg border border-pink-500/30">
                       <p className="text-sm text-gray-300 mb-2">Preview your song:</p>
@@ -419,24 +347,20 @@ export default function CheckoutPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="cover" className="text-white text-base">
-                    Cover Image * <span className="text-sm text-gray-400">(Max 4.5 MB)</span>
+                    Cover Image *
                   </Label>
                   <div className="relative">
                     <Input
                       id="cover"
                       type="file"
                       accept="image/*"
-                      onChange={(e) =>
-                        handleFileChange(e, setCoverImage, setCoverPreviewUrl, coverPreviewUrl, setCoverError)
-                      }
+                      onChange={(e) => handleFileChange(e, setCoverImage, setCoverPreviewUrl, coverPreviewUrl)}
                       className="hidden"
                       required
                     />
                     <label
                       htmlFor="cover"
-                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
-                        coverError ? "border-red-500/50" : "border-purple-500/50"
-                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50`}
+                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-purple-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50"
                     >
                       <ImageIcon className="h-8 w-8 text-[#A74AC7]" />
                       <div className="text-center">
@@ -451,12 +375,6 @@ export default function CheckoutPage() {
                       </div>
                     </label>
                   </div>
-                  {coverError && (
-                    <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                      <p className="text-sm text-red-400">{coverError}</p>
-                    </div>
-                  )}
                   {coverPreviewUrl && (
                     <div className="mt-4 p-4 bg-black/40 rounded-lg border border-purple-500/30">
                       <p className="text-sm text-gray-300 mb-2">Preview your cover art:</p>
@@ -476,8 +394,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="intro" className="text-white text-base">
-                    Artist Intro Liner (Audio) - Max 15 seconds *{" "}
-                    <span className="text-sm text-gray-400">(Max 4.5 MB)</span>
+                    Artist Intro Liner (Audio) - Max 15 seconds *
                   </Label>
                   <div className="relative">
                     <Input
@@ -490,9 +407,7 @@ export default function CheckoutPage() {
                     />
                     <label
                       htmlFor="intro"
-                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
-                        introError ? "border-red-500/50" : "border-pink-500/50"
-                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50`}
+                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-pink-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50"
                     >
                       <Mic className="h-8 w-8 text-[#E93CAC]" />
                       <div className="text-center">
@@ -507,12 +422,6 @@ export default function CheckoutPage() {
                       </div>
                     </label>
                   </div>
-                  {introError && (
-                    <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                      <p className="text-sm text-red-400">{introError}</p>
-                    </div>
-                  )}
                   {introPreviewUrl && (
                     <div className="mt-4 p-4 bg-black/40 rounded-lg border border-pink-500/30">
                       <p className="text-sm text-gray-300 mb-2">Preview your intro liner:</p>
@@ -544,7 +453,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="pronunciation" className="text-white text-base">
-                    Artist Name Pronunciation (Optional) <span className="text-sm text-gray-400">(Max 4.5 MB)</span>
+                    Artist Name Pronunciation (Optional)
                   </Label>
                   <div className="relative">
                     <Input
@@ -556,9 +465,7 @@ export default function CheckoutPage() {
                     />
                     <label
                       htmlFor="pronunciation"
-                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
-                        pronunciationError ? "border-red-500/50" : "border-purple-500/50"
-                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50`}
+                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-purple-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50"
                     >
                       <Mic className="h-8 w-8 text-[#A74AC7]" />
                       <div className="text-center">
@@ -573,12 +480,6 @@ export default function CheckoutPage() {
                       </div>
                     </label>
                   </div>
-                  {pronunciationError && (
-                    <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                      <p className="text-sm text-red-400">{pronunciationError}</p>
-                    </div>
-                  )}
                   {pronunciationPreviewUrl && (
                     <div className="mt-4 p-4 bg-black/40 rounded-lg border border-purple-500/30">
                       <p className="text-sm text-gray-300 mb-2">Preview your pronunciation:</p>

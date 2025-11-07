@@ -4,15 +4,31 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Download, ArrowRight, X, LogOut, Loader2 } from "lucide-react"
-import { getSubmissionsByPackage, updateSubmissionStatus, type AdminSubmission } from "@/app/actions/admin"
+import { getSubmissionsByPackage, updateSubmissionStatus } from "@/app/actions/admin"
 
 type PageType = "spark" | "wave" | "prime" | "exec" | "icon"
 type ViewType = "new" | "programmed"
 
+type Submission = {
+  id: number
+  artist_name: string
+  instagram_handle: string
+  email: string
+  phone: string
+  package_name: string
+  status: string
+  notes?: string
+  created_at: string
+  uploaded_files: Array<{
+    file_type: string
+    file_url: string
+  }>
+}
+
 export default function AdminDashboard() {
   const [activePage, setActivePage] = useState<PageType>("spark")
   const [activeView, setActiveView] = useState<ViewType>("new")
-  const [submissions, setSubmissions] = useState<AdminSubmission[]>([])
+  const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
 
   const [showNotesModal, setShowNotesModal] = useState(false)
@@ -20,7 +36,6 @@ export default function AdminDashboard() {
   const [programmingNotes, setProgrammingNotes] = useState("")
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
-  const [updating, setUpdating] = useState(false)
 
   const pages = [
     { id: "spark" as PageType, name: "Spark", color: "from-pink-500 to-purple-500" },
@@ -31,20 +46,24 @@ export default function AdminDashboard() {
   ]
 
   useEffect(() => {
-    async function fetchSubmissions() {
+    const fetchSubmissions = async () => {
       setLoading(true)
-      console.log("[v0] Fetching submissions for", activePage, activeView)
-      const result = await getSubmissionsByPackage(activePage, activeView)
-      if (result.success) {
-        console.log("[v0] Loaded submissions:", result.submissions.length)
-        setSubmissions(result.submissions)
-      } else {
-        console.error("[v0] Failed to load submissions:", result.error)
+      try {
+        const data = await getSubmissionsByPackage(activePage, activeView)
+        setSubmissions(data)
+      } catch (error) {
+        console.error("[v0] Error loading submissions:", error)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
+
     fetchSubmissions()
   }, [activePage, activeView])
+
+  const getFileUrl = (submission: Submission, fileType: string) => {
+    return submission.uploaded_files?.find((f) => f.file_type === fileType)?.file_url || ""
+  }
 
   const handleMoveToProgrammed = (submissionId: number) => {
     setCurrentSubmissionId(submissionId)
@@ -63,21 +82,14 @@ export default function AdminDashboard() {
 
   const handleConfirmMove = async () => {
     if (currentSubmissionId) {
-      setUpdating(true)
-      console.log("[v0] Moving submission to programmed:", currentSubmissionId)
-      const result = await updateSubmissionStatus(currentSubmissionId, "programmed", programmingNotes)
-
-      if (result.success) {
-        console.log("[v0] Successfully moved submission")
-        const refreshResult = await getSubmissionsByPackage(activePage, activeView)
-        if (refreshResult.success) {
-          setSubmissions(refreshResult.submissions)
-        }
-      } else {
-        console.error("[v0] Failed to move submission:", result.error)
-        alert("Failed to update submission. Please try again.")
+      try {
+        await updateSubmissionStatus(currentSubmissionId, "programmed", programmingNotes)
+        const data = await getSubmissionsByPackage(activePage, activeView)
+        setSubmissions(data)
+      } catch (error) {
+        console.error("[v0] Error updating submission:", error)
+        alert("Failed to update submission status")
       }
-      setUpdating(false)
     }
     setShowConfirmation(false)
     setCurrentSubmissionId(null)
@@ -91,15 +103,21 @@ export default function AdminDashboard() {
     setProgrammingNotes("")
   }
 
-  const handleDownloadAll = async (submission: AdminSubmission) => {
+  const handleDownloadAll = async (submission: Submission) => {
     const files = [
-      submission.files.song && { url: submission.files.song.url, name: "song.mp3" },
-      submission.files.intro && { url: submission.files.intro.url, name: "intro-liner.mp3" },
-      submission.files.pronunciation && { url: submission.files.pronunciation.url, name: "artist-pronunciation.mp3" },
-      submission.files.cover && { url: submission.files.cover.url, name: "cover-image.jpg" },
-    ].filter(Boolean) as { url: string; name: string }[]
+      { url: getFileUrl(submission, "song"), name: "song.mp3" },
+      { url: getFileUrl(submission, "intro_liner"), name: "intro-liner.mp3" },
+      { url: getFileUrl(submission, "cover_image"), name: "cover-image.jpg" },
+    ]
+
+    const pronunciationUrl = getFileUrl(submission, "pronunciation")
+    if (pronunciationUrl) {
+      files.push({ url: pronunciationUrl, name: "artist-pronunciation.mp3" })
+    }
 
     for (const file of files) {
+      if (!file.url) continue
+
       try {
         const response = await fetch(file.url)
         const blob = await response.blob()
@@ -132,6 +150,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-[#2B0F45] to-black text-white">
+      {/* Header */}
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -158,6 +177,7 @@ export default function AdminDashboard() {
       </header>
 
       <div className="flex">
+        {/* Sidebar Navigation */}
         <aside className="w-64 min-h-[calc(100vh-73px)] border-r border-gray-800 bg-black/30 p-6">
           <nav className="space-y-2">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Campaign Tiers</p>
@@ -177,8 +197,10 @@ export default function AdminDashboard() {
           </nav>
         </aside>
 
+        {/* Main Content Area */}
         <main className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
+            {/* Page Header */}
             <div className="mb-8">
               <h2 className="text-4xl font-bold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent mb-2">
                 {pages.find((p) => p.id === activePage)?.name}
@@ -186,6 +208,7 @@ export default function AdminDashboard() {
               <p className="text-gray-400">Campaign management and analytics</p>
             </div>
 
+            {/* Toggle buttons for New Submissions and Programmed */}
             <div className="flex gap-4 mb-6">
               <button
                 onClick={() => setActiveView("new")}
@@ -211,9 +234,9 @@ export default function AdminDashboard() {
 
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8 min-h-[500px]">
               {loading ? (
-                <div className="flex items-center justify-center h-full min-h-[400px]">
+                <div className="flex items-center justify-center h-full">
                   <div className="text-center space-y-4">
-                    <Loader2 className="w-12 h-12 mx-auto animate-spin text-pink-500" />
+                    <Loader2 className="w-12 h-12 mx-auto text-[#E93CAC] animate-spin" />
                     <p className="text-gray-400">Loading submissions...</p>
                   </div>
                 </div>
@@ -225,67 +248,65 @@ export default function AdminDashboard() {
                       className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-pink-500/50 transition-all"
                     >
                       <div className="flex gap-6">
+                        {/* Cover Image */}
                         <div className="flex-shrink-0">
-                          {submission.files.cover ? (
-                            <Image
-                              src={submission.files.cover.url || "/placeholder.svg"}
-                              alt="Single Cover"
-                              width={200}
-                              height={200}
-                              className="rounded-lg object-cover"
-                            />
-                          ) : (
-                            <div className="w-[200px] h-[200px] bg-gray-700 rounded-lg flex items-center justify-center">
-                              <span className="text-gray-500">No cover</span>
-                            </div>
-                          )}
+                          <Image
+                            src={getFileUrl(submission, "cover_image") || "/placeholder.svg"}
+                            alt="Single Cover"
+                            width={200}
+                            height={200}
+                            className="rounded-lg object-cover"
+                          />
                         </div>
 
+                        {/* Details Section */}
                         <div className="flex-1 space-y-4">
-                          <div className="mb-2">
-                            <h3 className="text-xl font-bold text-white">{submission.artistName}</h3>
-                            <p className="text-sm text-gray-400">{submission.packageName} Package</p>
+                          {/* Artist Name */}
+                          <div>
+                            <h3 className="text-2xl font-bold text-white">{submission.artist_name}</h3>
                           </div>
 
+                          {/* Audio Players */}
                           <div className="space-y-3">
-                            {submission.files.song && (
+                            {getFileUrl(submission, "song") && (
                               <div>
                                 <label className="text-sm font-semibold text-pink-400 mb-1 block">Song (MP3)</label>
                                 <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
-                                  <source src={submission.files.song.url} type="audio/mpeg" />
+                                  <source src={getFileUrl(submission, "song")} type="audio/mpeg" />
                                 </audio>
                               </div>
                             )}
 
-                            {submission.files.intro && (
+                            {getFileUrl(submission, "intro_liner") && (
                               <div>
                                 <label className="text-sm font-semibold text-pink-400 mb-1 block">
                                   Artist Intro Liner (MP3)
                                 </label>
                                 <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
-                                  <source src={submission.files.intro.url} type="audio/mpeg" />
+                                  <source src={getFileUrl(submission, "intro_liner")} type="audio/mpeg" />
                                 </audio>
                               </div>
                             )}
 
-                            {submission.files.pronunciation && (
+                            {getFileUrl(submission, "pronunciation") && (
                               <div>
                                 <label className="text-sm font-semibold text-pink-400 mb-1 block">
                                   Artist Name Pronunciation (MP3)
                                 </label>
                                 <audio controls className="w-full h-10" style={{ maxWidth: "100%" }}>
-                                  <source src={submission.files.pronunciation.url} type="audio/mpeg" />
+                                  <source src={getFileUrl(submission, "pronunciation")} type="audio/mpeg" />
                                 </audio>
                               </div>
                             )}
                           </div>
 
+                          {/* Contact Information */}
                           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-700">
                             <div>
                               <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
                                 Instagram
                               </label>
-                              <p className="text-white">{submission.instagram}</p>
+                              <p className="text-white">{submission.instagram_handle}</p>
                             </div>
                             <div>
                               <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
@@ -335,7 +356,7 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full min-h-[400px]">
+                <div className="flex items-center justify-center h-full">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 mx-auto bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] rounded-full flex items-center justify-center">
                       <span className="text-2xl font-bold">{pages.find((p) => p.id === activePage)?.name[0]}</span>
@@ -426,23 +447,14 @@ export default function AdminDashboard() {
                   onClick={handleCancelMove}
                   variant="outline"
                   className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800 bg-transparent"
-                  disabled={updating}
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConfirmMove}
                   className="flex-1 bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] hover:from-[#D02A9C] hover:to-[#963AB7] text-white"
-                  disabled={updating}
                 >
-                  {updating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    "Confirm"
-                  )}
+                  Confirm
                 </Button>
               </div>
             </div>
