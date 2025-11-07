@@ -7,25 +7,29 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { login } from "@/app/actions/auth"
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setLoading(true)
 
-    // Simple authentication check
-    if (email === "admin@littlive.com" && password === "1") {
-      // Successful login - redirect to dashboard
-      router.push("/admin/dashboard")
-    } else {
-      setError("Invalid email or password")
+    try {
+      const result = await login(email, password)
+      if (result?.error) {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError("An error occurred during login")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -56,6 +60,7 @@ export default function AdminLogin() {
                 placeholder="admin@littlive.com"
                 className="bg-black/50 border-pink-500/30 text-white placeholder:text-gray-500 focus:border-pink-500"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -72,6 +77,7 @@ export default function AdminLogin() {
                 placeholder="Enter password"
                 className="bg-black/50 border-pink-500/30 text-white placeholder:text-gray-500 focus:border-pink-500"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -83,9 +89,10 @@ export default function AdminLogin() {
             {/* Submit Button */}
             <Button
               type="submit"
+              disabled={loading}
               className="w-full bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all duration-300 font-semibold py-6"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
 

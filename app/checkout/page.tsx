@@ -558,7 +558,7 @@ function CheckoutForm() {
                 <div className="space-y-2">
                   <Label className="text-white text-base">Card Number *</Label>
                   <div className="relative">
-                    <div className="bg-black/30 border border-white/20 rounded-md p-3 pl-12 focus-within:border-pink-500 transition-colors">
+                    <div className="bg-black/30 border border-white/20 rounded-md p-3 pl-12 focus-within:border-pink-500 transition-colors pt-3.5 pb-3.5">
                       <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
                     </div>
                     <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />

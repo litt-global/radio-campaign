@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Download, ArrowRight, X, LogOut, Loader2 } from "lucide-react"
 import { getSubmissionsByPackage, updateSubmissionStatus } from "@/app/actions/admin"
+import { logout } from "@/app/actions/auth"
 
 type PageType = "spark" | "wave" | "prime" | "exec" | "icon"
 type ViewType = "new" | "programmed"
@@ -140,7 +141,8 @@ export default function AdminDashboard() {
     setShowLogoutConfirmation(true)
   }
 
-  const handleConfirmLogout = () => {
+  const handleConfirmLogout = async () => {
+    await logout()
     window.location.href = "/"
   }
 
