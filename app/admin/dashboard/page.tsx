@@ -155,7 +155,7 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/LITT%20Live%20logo%20new-pLNLG6ZhK5eR1MiJ2tGFtBt8yfdDOW.png"
+              src="/images/design-mode/LITT%20Live%20logo%20new.png"
               alt="LITT Live"
               width={150}
               height={75}

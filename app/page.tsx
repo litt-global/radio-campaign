@@ -123,7 +123,7 @@ export default function Home() {
           <div className="mx-auto max-w-4xl space-y-4">
             <div className="flex justify-center">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/LITT%20Live%20logo%20new-pLNLG6ZhK5eR1MiJ2tGFtBt8yfdDOW.png"
+                src="/images/design-mode/LITT%20Live%20logo%20new.png"
                 alt="LITT Live"
                 width={300}
                 height={150}
@@ -285,7 +285,7 @@ export default function Home() {
             {/* LITT Live Logo */}
             <div className="flex items-center gap-3">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/LITT%20Live%20logo%20new-pLNLG6ZhK5eR1MiJ2tGFtBt8yfdDOW.png"
+                src="/images/design-mode/LITT%20Live%20logo%20new.png"
                 alt="LITT Live"
                 width={120}
                 height={120}
@@ -299,7 +299,7 @@ export default function Home() {
             {/* Konvict Kulture Logo */}
             <div className="flex items-center gap-3">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Konvict_Kulture_Logo%20%281%29-feJgVQVsawVvuCK6WpIl515FcFbqTL.png"
+                src="/images/design-mode/Konvict_Kulture_Logo%20%281%29.png"
                 alt="Konvict Kulture"
                 width={120}
                 height={120}
@@ -328,7 +328,7 @@ export default function Home() {
                   className="transition-opacity hover:opacity-80"
                 >
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/App%20store%20badge-NIDhMtClIRoK9PtdSxvZU0SFCErzPJ.webp"
+                    src="/images/design-mode/App%20store%20badge.webp"
                     alt="Download on the App Store"
                     width={160}
                     height={53}
@@ -342,7 +342,7 @@ export default function Home() {
                   className="transition-opacity hover:opacity-80"
                 >
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Google%20playstore%20badge-TLZGnKpU2wDlL1sJeQa0HLmFWdiW3p.webp"
+                    src="/images/design-mode/Google%20playstore%20badge.webp"
                     alt="Get it on Google Play"
                     width={180}
                     height={53}
