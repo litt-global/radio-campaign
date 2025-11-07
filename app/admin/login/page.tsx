@@ -25,10 +25,12 @@ export default function AdminLogin() {
       const result = await login(email, password)
       if (result?.error) {
         setError(result.error)
+        setLoading(false)
+      } else if (result?.success) {
+        window.location.href = "/admin/dashboard"
       }
     } catch (err) {
       setError("An error occurred during login")
-    } finally {
       setLoading(false)
     }
   }

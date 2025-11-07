@@ -11,7 +11,7 @@ export async function login(email: string, password: string) {
   }
 
   await createAdminSession()
-  redirect("/admin/dashboard")
+  return { success: true }
 }
 
 export async function logout() {
