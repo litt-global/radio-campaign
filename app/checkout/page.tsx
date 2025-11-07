@@ -6,17 +6,47 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, ImageIcon, Mic, Loader2, CheckCircle2 } from "lucide-react"
+import { Music, ImageIcon, Mic, CheckCircle2, CreditCard } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { saveCampaignPurchase } from "@/app/actions/campaign"
+import {
+  Elements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js"
+import { loadStripe } from "@stripe/stripe-js"
 
-export default function CheckoutPage() {
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      color: "#ffffff",
+      fontFamily: "inherit",
+      fontSize: "16px",
+      "::placeholder": {
+        color: "#6b7280",
+      },
+    },
+    invalid: {
+      color: "#ef4444",
+    },
+  },
+}
+
+function CheckoutForm() {
   const searchParams = useSearchParams()
   const packageName = searchParams.get("package") || "Package"
   const packagePrice = searchParams.get("price") || "0"
+
+  const stripe = useStripe()
+  const elements = useElements()
 
   const [songFile, setSongFile] = useState<File | null>(null)
   const [coverImage, setCoverImage] = useState<File | null>(null)
@@ -28,13 +58,10 @@ export default function CheckoutPage() {
   const [introPreviewUrl, setIntroPreviewUrl] = useState<string | null>(null)
   const [pronunciationPreviewUrl, setPronunciationPreviewUrl] = useState<string | null>(null)
 
-  const [introError, setIntroError] = useState<string | null>(null)
-
-  const [cardNumber, setCardNumber] = useState("")
-  const [expiry, setExpiry] = useState("")
-
   const [isProcessing, setIsProcessing] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
+  const [cardLast4, setCardLast4] = useState<string | null>("0000")
 
   useEffect(() => {
     return () => {
@@ -72,7 +99,6 @@ export default function CheckoutPage() {
         URL.revokeObjectURL(introPreviewUrl)
       }
       setIntroPreviewUrl(null)
-      setIntroError(null)
       setIntroLiner(file)
       const newPreviewUrl = URL.createObjectURL(file)
       setTimeout(() => {
@@ -96,49 +122,59 @@ export default function CheckoutPage() {
     }
   }
 
-  const formatCardNumber = (value: string) => {
-    const digits = value.replace(/\D/g, "")
-    const limitedDigits = digits.slice(0, 16)
-    const formatted = limitedDigits.match(/.{1,4}/g)?.join(" ") || limitedDigits
-    return formatted
-  }
-
-  const formatExpiry = (value: string) => {
-    const digits = value.replace(/\D/g, "")
-    const limitedDigits = digits.slice(0, 4)
-    if (limitedDigits.length >= 2) {
-      return `${limitedDigits.slice(0, 2)}/${limitedDigits.slice(2)}`
-    }
-    return limitedDigits
-  }
-
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatCardNumber(e.target.value)
-    setCardNumber(formatted)
-  }
-
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatExpiry(e.target.value)
-    setExpiry(formatted)
-  }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const formData = new FormData(e.currentTarget)
-    const cardNumber = formData.get("cardNumber") as string
-    const cleanCardNumber = cardNumber.replace(/\s/g, "")
-
-    if (cleanCardNumber !== "4242424242424242") {
-      alert("Please use test card: 4242 4242 4242 4242")
+    if (!stripe || !elements) {
       return
     }
 
     setIsProcessing(true)
 
     try {
+      const formData = new FormData(e.currentTarget)
+      const cardName = formData.get("cardName") as string
+
+      const cardNumberElement = elements.getElement(CardNumberElement)
+
+      if (!cardNumberElement) {
+        throw new Error("Card element not found")
+      }
+
+      const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardNumberElement,
+        billing_details: {
+          name: cardName,
+        },
+      })
+
+      if (pmError) {
+        throw new Error(pmError.message || "Failed to process card details")
+      }
+
+      // Process payment on backend with payment method
+      const paymentResponse = await fetch("/api/process-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentMethodId: paymentMethod.id,
+          packageName,
+          packagePrice,
+        }),
+      })
+
+      if (!paymentResponse.ok) {
+        const errorData = await paymentResponse.json()
+        throw new Error(errorData.error || "Payment failed")
+      }
+
+      const { paymentIntentId: piId, cardLast4 } = await paymentResponse.json()
+      setPaymentIntentId(piId)
+      setCardLast4(cardLast4)
+
+      // Upload files
       const uploadFile = async (file: File, fileType: string) => {
-        // Step 1: Get signed upload URL from API
         const metadataForm = new FormData()
         metadataForm.append("fileName", file.name)
         metadataForm.append("fileType", fileType)
@@ -150,14 +186,11 @@ export default function CheckoutPage() {
         })
 
         if (!urlResponse.ok) {
-          const errorText = await urlResponse.text()
-          console.error("[v0] Upload URL error:", errorText)
           throw new Error(`Failed to get upload URL for ${fileType}`)
         }
 
-        const { signedUrl, path, token } = await urlResponse.json()
+        const { signedUrl, path } = await urlResponse.json()
 
-        // Step 2: Upload file directly to Supabase Storage using signed URL
         const uploadResponse = await fetch(signedUrl, {
           method: "PUT",
           body: file,
@@ -168,12 +201,9 @@ export default function CheckoutPage() {
         })
 
         if (!uploadResponse.ok) {
-          const errorText = await uploadResponse.text()
-          console.error("[v0] Upload error:", errorText)
           throw new Error(`Failed to upload ${fileType}`)
         }
 
-        // Step 3: Construct public URL
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
         return `${supabaseUrl}/storage/v1/object/public/campaign-files/${path}`
       }
@@ -196,8 +226,9 @@ export default function CheckoutPage() {
         coverImageUrl: coverUrl,
         introLinerUrl: introUrl,
         pronunciationUrl,
-        cardName: formData.get("cardName") as string,
-        cardNumber: cleanCardNumber,
+        cardName,
+        cardLast4: cardLast4 || "0000",
+        paymentIntentId: piId,
       })
 
       if (!result.success) {
@@ -207,40 +238,12 @@ export default function CheckoutPage() {
       setTimeout(() => {
         setIsProcessing(false)
         setShowConfirmation(true)
-      }, 2000)
+      }, 1000)
     } catch (error) {
       console.error("[v0] Error submitting campaign:", error)
       setIsProcessing(false)
-      alert("There was an error processing your purchase. Please try again.")
+      alert(error instanceof Error ? error.message : "There was an error processing your purchase. Please try again.")
     }
-  }
-
-  if (isProcessing) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-[#2B0F45] to-black text-white flex items-center justify-center">
-        <div className="text-center space-y-8">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 border-4 border-pink-500/30 rounded-full animate-ping" />
-            </div>
-            <div className="relative flex items-center justify-center">
-              <Loader2 className="w-32 h-32 text-[#E93CAC] animate-spin" />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent">
-              Processing Your Payment
-            </h2>
-            <p className="text-xl text-gray-300">Please wait while we secure your campaign...</p>
-            <div className="flex justify-center gap-2 mt-6">
-              <div className="w-3 h-3 bg-[#E93CAC] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-              <div className="w-3 h-3 bg-[#E93CAC] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-              <div className="w-3 h-3 bg-[#E93CAC] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   if (showConfirmation) {
@@ -260,6 +263,7 @@ export default function CheckoutPage() {
             <div className="space-y-4 text-lg text-gray-300">
               <p className="text-xl font-semibold text-white">Your {packageName} campaign has been confirmed.</p>
               <p>Please check your email for confirmation details and next steps.</p>
+              {paymentIntentId && <p className="text-sm text-gray-400">Payment ID: {paymentIntentId}</p>}
               <div className="pt-6 pb-4">
                 <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-6">
                   <p className="text-base text-gray-200">If you have any questions or issues, please contact us at:</p>
@@ -545,59 +549,43 @@ export default function CheckoutPage() {
                     id="cardName"
                     name="cardName"
                     type="text"
-                    placeholder="Name"
+                    placeholder="John Doe"
                     className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cardNumber" className="text-white text-base">
-                    Card Number *
-                  </Label>
-                  <Input
-                    id="cardNumber"
-                    name="cardNumber"
-                    type="text"
-                    placeholder="4242 4242 4242 4242"
-                    value={cardNumber}
-                    onChange={handleCardNumberChange}
-                    maxLength={19}
-                    className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
-                    required
-                  />
+                  <Label className="text-white text-base">Card Number *</Label>
+                  <div className="relative">
+                    <div className="bg-black/30 border border-white/20 rounded-md p-3 pl-12 focus-within:border-pink-500 transition-colors">
+                      <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="expiry" className="text-white text-base">
-                      Expiry Date *
-                    </Label>
-                    <Input
-                      id="expiry"
-                      name="expiry"
-                      type="text"
-                      placeholder="MM/YY"
-                      value={expiry}
-                      onChange={handleExpiryChange}
-                      maxLength={5}
-                      className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
-                      required
-                    />
+                    <Label className="text-white text-base">Expiry Date *</Label>
+                    <div className="bg-black/30 border border-white/20 rounded-md p-3 focus-within:border-pink-500 transition-colors">
+                      <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="cvv" className="text-white text-base">
-                      CVV *
-                    </Label>
-                    <Input
-                      id="cvv"
-                      name="cvv"
-                      type="text"
-                      placeholder="123"
-                      maxLength={4}
-                      className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
-                      required
-                    />
+                    <Label className="text-white text-base">CVC *</Label>
+                    <div className="bg-black/30 border border-white/20 rounded-md p-3 focus-within:border-pink-500 transition-colors">
+                      <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-300">
+                    <p className="font-semibold text-white mb-1">Secure Payment</p>
+                    <p>Your payment information is encrypted and processed securely through Stripe.</p>
                   </div>
                 </div>
               </div>
@@ -606,8 +594,9 @@ export default function CheckoutPage() {
                 type="submit"
                 size="lg"
                 className="w-full bg-[#E93CAC] text-white hover:bg-[#E93CAC]/90 font-bold text-lg py-6"
+                disabled={isProcessing || !stripe}
               >
-                Purchase {packageName} - {packagePrice}
+                {isProcessing ? "Processing..." : `Purchase ${packageName} - ${packagePrice}`}
               </Button>
 
               <p className="text-center text-sm text-gray-400">
@@ -618,5 +607,13 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm />
+    </Elements>
   )
 }

@@ -234,7 +234,7 @@ export default function AdminDashboard() {
 
             <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-8 min-h-[500px]">
               {loading ? (
-                <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center min-h-[400px]">
                   <div className="text-center space-y-4">
                     <Loader2 className="w-12 h-12 mx-auto text-[#E93CAC] animate-spin" />
                     <p className="text-gray-400">Loading submissions...</p>
@@ -356,18 +356,13 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center min-h-[400px]">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 mx-auto bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] rounded-full flex items-center justify-center">
                       <span className="text-2xl font-bold">{pages.find((p) => p.id === activePage)?.name[0]}</span>
                     </div>
                     <p className="text-gray-400 text-lg">
                       No {activeView === "new" ? "new submissions" : "programmed submissions"} yet
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      {activeView === "new"
-                        ? "New submissions will appear here"
-                        : "Programmed submissions will appear here"}
                     </p>
                   </div>
                 </div>

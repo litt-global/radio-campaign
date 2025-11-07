@@ -14,7 +14,8 @@ export async function saveCampaignPurchase(formData: {
   introLinerUrl: string
   pronunciationUrl?: string
   cardName: string
-  cardNumber: string
+  cardLast4: string
+  paymentIntentId: string
 }) {
   const supabase = await createClient()
 
@@ -36,13 +37,14 @@ export async function saveCampaignPurchase(formData: {
 
     if (campaignError) throw campaignError
 
-    // Insert payment record
     const { error: paymentError } = await supabase.from("payments").insert({
       campaign_id: campaign.id,
       amount: formData.packagePrice,
-      cardholder_name: formData.cardName,
-      card_last_four: formData.cardNumber.slice(-4),
+      cardholder_name: formData.cardName || "Stripe Customer",
+      card_last_four: formData.cardLast4,
       payment_status: "completed",
+      payment_method: "card",
+      transaction_id: formData.paymentIntentId,
     })
 
     if (paymentError) throw paymentError
