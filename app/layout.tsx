@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "LITT Live Radio Campaigns - Promote Your Music",
   description: "Get your track on air across 40 genre-based stations with LITT Live Radio Campaigns",
   generator: "v0.app",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 }
 
 export default function RootLayout({
