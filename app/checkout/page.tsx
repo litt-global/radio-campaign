@@ -12,6 +12,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { saveCampaignPurchase } from "@/app/actions/campaign"
+import { StripeModeIndicator } from "@/components/stripe-mode-badge"
 import {
   Elements,
   CardNumberElement,
@@ -397,6 +398,10 @@ function CheckoutForm() {
           </Link>
         </div>
 
+        <div className="mx-auto max-w-3xl mb-6">
+          {/* StripeModeIndicator is now inline with Payment Information heading */}
+        </div>
+
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-2 text-4xl font-bold text-center">Complete Your {packageName} Campaign</h1>
           <p className="mb-12 text-center text-gray-400">Upload your content and complete your purchase</p>
@@ -613,7 +618,7 @@ function CheckoutForm() {
                     placeholder="your@email.com"
                     required
                     onChange={() => setEmailError(false)}
-                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
                       emailError ? "border-red-500 border-2" : "border-white/20"
                     }`}
                   />
@@ -622,7 +627,11 @@ function CheckoutForm() {
               </div>
 
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-[#E93CAC]">Payment Information</h2>
+                {/* Flex container with StripeModeIndicator positioned to the right of heading */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-[#E93CAC]">Payment Information</h2>
+                  <StripeModeIndicator />
+                </div>
 
                 <div className="space-y-2" ref={cardNameRef}>
                   <Label htmlFor="cardName" className="text-white text-base">
