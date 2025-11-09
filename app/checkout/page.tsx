@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
@@ -63,6 +63,38 @@ function CheckoutForm() {
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
   const [cardLast4, setCardLast4] = useState<string | null>("0000")
+  const [cardElementComplete, setCardElementComplete] = useState({
+    cardNumber: false,
+    cardExpiry: false,
+    cardCvc: false,
+  })
+  const [cardElementErrors, setCardElementErrors] = useState({
+    cardNumber: "",
+    cardExpiry: "",
+    cardCvc: "",
+  })
+  const [fileErrors, setFileErrors] = useState({
+    song: false,
+    cover: false,
+    intro: false,
+  })
+  const [fieldErrors, setFieldErrors] = useState({
+    artistName: false,
+    instagram: false,
+    phone: false,
+    cardName: false,
+  })
+
+  const songRef = useRef<HTMLDivElement>(null)
+  const coverRef = useRef<HTMLDivElement>(null)
+  const introRef = useRef<HTMLDivElement>(null)
+  const emailRef = useRef<HTMLDivElement>(null)
+  const artistNameRef = useRef<HTMLDivElement>(null)
+  const instagramRef = useRef<HTMLDivElement>(null)
+  const phoneRef = useRef<HTMLDivElement>(null)
+  const cardNameRef = useRef<HTMLDivElement>(null)
+
+  const [emailError, setEmailError] = useState(false)
 
   useEffect(() => {
     return () => {
@@ -126,6 +158,67 @@ function CheckoutForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const isEmailValid = emailRegex.test(email)
+
+    const textFieldErrors = {
+      artistName: !formData.get("artistName"),
+      instagram: !formData.get("instagram"),
+      phone: !formData.get("phone"),
+      cardName: !formData.get("cardName"),
+    }
+
+    const errors = {
+      song: !songFile,
+      cover: !coverImage,
+      intro: !introLiner,
+    }
+
+    setFileErrors(errors)
+    setEmailError(!isEmailValid)
+    setFieldErrors(textFieldErrors)
+
+    const cardErrors = {
+      cardNumber:
+        !cardElementComplete.cardNumber && !cardElementErrors.cardNumber
+          ? "Card number is required"
+          : cardElementErrors.cardNumber,
+      cardExpiry:
+        !cardElementComplete.cardExpiry && !cardElementErrors.cardExpiry
+          ? "Expiry date is required"
+          : cardElementErrors.cardExpiry,
+      cardCvc:
+        !cardElementComplete.cardCvc && !cardElementErrors.cardCvc ? "CVC is required" : cardElementErrors.cardCvc,
+    }
+
+    setCardElementErrors(cardErrors)
+
+    const hasCardErrors = cardErrors.cardNumber || cardErrors.cardExpiry || cardErrors.cardCvc
+    const hasFieldErrors = Object.values(textFieldErrors).some((error) => error)
+
+    if (errors.song || errors.cover || errors.intro || !isEmailValid || hasCardErrors || hasFieldErrors) {
+      if (errors.song && songRef.current) {
+        songRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (errors.cover && coverRef.current) {
+        coverRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (errors.intro && introRef.current) {
+        introRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (textFieldErrors.artistName && artistNameRef.current) {
+        artistNameRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (textFieldErrors.instagram && instagramRef.current) {
+        instagramRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (!isEmailValid && emailRef.current) {
+        emailRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (textFieldErrors.phone && phoneRef.current) {
+        phoneRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      } else if (textFieldErrors.cardName && cardNameRef.current) {
+        cardNameRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+      return
+    }
+
     if (!stripe || !elements) {
       return
     }
@@ -134,10 +227,6 @@ function CheckoutForm() {
     setProcessingStep("Validating card details...")
 
     try {
-      const formData = new FormData(e.currentTarget)
-      const cardName = formData.get("cardName") as string
-      const email = formData.get("email") as string
-
       const cardNumberElement = elements.getElement(CardNumberElement)
 
       if (!cardNumberElement) {
@@ -148,7 +237,7 @@ function CheckoutForm() {
         type: "card",
         card: cardNumberElement,
         billing_details: {
-          name: cardName,
+          name: formData.get("cardName") as string,
         },
       })
 
@@ -234,7 +323,7 @@ function CheckoutForm() {
         coverImageUrl: coverUrl,
         introLinerUrl: introUrl,
         pronunciationUrl,
-        cardName,
+        cardName: formData.get("cardName") as string,
         cardLast4: cardLast4 || "0000",
         paymentIntentId: piId,
       })
@@ -314,11 +403,11 @@ function CheckoutForm() {
 
           <Card className="relative border-2 border-pink-500/30 bg-black/60 backdrop-blur-xl p-8 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-purple-500/10 pointer-events-none" />
-            <form onSubmit={handleSubmit} className="relative z-10 space-y-8">
+            <form onSubmit={handleSubmit} noValidate className="relative z-10 space-y-8">
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-[#E93CAC]">Upload Your Content</h2>
 
-                <div className="space-y-2">
+                <div className="space-y-2" ref={songRef}>
                   <Label htmlFor="song" className="text-white text-base">
                     Song File (MP3) *
                   </Label>
@@ -327,13 +416,17 @@ function CheckoutForm() {
                       id="song"
                       type="file"
                       accept="audio/mp3,audio/mpeg"
-                      onChange={(e) => handleFileChange(e, setSongFile, setSongPreviewUrl, songPreviewUrl)}
+                      onChange={(e) => {
+                        handleFileChange(e, setSongFile, setSongPreviewUrl, songPreviewUrl)
+                        setFileErrors((prev) => ({ ...prev, song: false }))
+                      }}
                       className="hidden"
-                      required
                     />
                     <label
                       htmlFor="song"
-                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-pink-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50"
+                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
+                        fileErrors.song ? "border-red-500" : "border-pink-500/50"
+                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50`}
                     >
                       <Music className="h-8 w-8 text-[#E93CAC]" />
                       <div className="text-center">
@@ -348,18 +441,10 @@ function CheckoutForm() {
                       </div>
                     </label>
                   </div>
-                  {songPreviewUrl && (
-                    <div className="mt-4 p-4 bg-black/40 rounded-lg border border-pink-500/30">
-                      <p className="text-sm text-gray-300 mb-2">Preview your song:</p>
-                      <audio key={songPreviewUrl} controls className="w-full" style={{ height: "40px" }}>
-                        <source src={songPreviewUrl} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                      </audio>
-                    </div>
-                  )}
+                  {fileErrors.song && <p className="text-red-500 text-sm mt-1">Please upload your song file</p>}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2" ref={coverRef}>
                   <Label htmlFor="cover" className="text-white text-base">
                     Cover Image *
                   </Label>
@@ -368,13 +453,17 @@ function CheckoutForm() {
                       id="cover"
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, setCoverImage, setCoverPreviewUrl, coverPreviewUrl)}
+                      onChange={(e) => {
+                        handleFileChange(e, setCoverImage, setCoverPreviewUrl, coverPreviewUrl)
+                        setFileErrors((prev) => ({ ...prev, cover: false }))
+                      }}
                       className="hidden"
-                      required
                     />
                     <label
                       htmlFor="cover"
-                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-purple-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50"
+                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
+                        fileErrors.cover ? "border-red-500" : "border-purple-500/50"
+                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50`}
                     >
                       <ImageIcon className="h-8 w-8 text-[#A74AC7]" />
                       <div className="text-center">
@@ -404,9 +493,10 @@ function CheckoutForm() {
                       </div>
                     </div>
                   )}
+                  {fileErrors.cover && <p className="text-red-500 text-sm mt-1">Please upload your cover image</p>}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2" ref={introRef}>
                   <Label htmlFor="intro" className="text-white text-base">
                     Artist Intro Liner (Audio) - Max 15 seconds *
                   </Label>
@@ -415,13 +505,17 @@ function CheckoutForm() {
                       id="intro"
                       type="file"
                       accept="audio/mp3,audio/mpeg"
-                      onChange={handleIntroLinerChange}
+                      onChange={(e) => {
+                        handleIntroLinerChange(e)
+                        setFileErrors((prev) => ({ ...prev, intro: false }))
+                      }}
                       className="hidden"
-                      required
                     />
                     <label
                       htmlFor="intro"
-                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-pink-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50"
+                      className={`flex items-center justify-center gap-3 rounded-lg border-2 border-dashed ${
+                        fileErrors.intro ? "border-red-500" : "border-pink-500/50"
+                      } bg-black/30 p-6 cursor-pointer transition-all hover:border-pink-500 hover:bg-black/50`}
                     >
                       <Mic className="h-8 w-8 text-[#E93CAC]" />
                       <div className="text-center">
@@ -445,13 +539,16 @@ function CheckoutForm() {
                       </audio>
                     </div>
                   )}
+                  {fileErrors.intro && (
+                    <p className="text-red-500 text-sm mt-1">Please upload your artist intro liner</p>
+                  )}
                 </div>
               </div>
 
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-[#E93CAC]">Contact Information</h2>
 
-                <div className="space-y-2">
+                <div className="space-y-2" ref={artistNameRef}>
                   <Label htmlFor="artistName" className="text-white text-base">
                     Artist Name *
                   </Label>
@@ -460,52 +557,16 @@ function CheckoutForm() {
                     name="artistName"
                     type="text"
                     placeholder="Your artist name"
-                    className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
                     required
+                    onChange={() => setFieldErrors((prev) => ({ ...prev, artistName: false }))}
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                      fieldErrors.artistName ? "border-red-500 border-2" : "border-white/20"
+                    }`}
                   />
+                  {fieldErrors.artistName && <p className="text-red-500 text-sm mt-1">Artist name is required</p>}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="pronunciation" className="text-white text-base">
-                    Artist Name Pronunciation (Optional)
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="pronunciation"
-                      type="file"
-                      accept="audio/mp3,audio/mpeg"
-                      onChange={handlePronunciationChange}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="pronunciation"
-                      className="flex items-center justify-center gap-3 rounded-lg border-2 border-dashed border-purple-500/50 bg-black/30 p-6 cursor-pointer transition-all hover:border-purple-500 hover:bg-black/50"
-                    >
-                      <Mic className="h-8 w-8 text-[#A74AC7]" />
-                      <div className="text-center">
-                        {pronunciationFile ? (
-                          <p className="text-white font-medium">{pronunciationFile.name}</p>
-                        ) : (
-                          <>
-                            <p className="text-white font-medium">Click to upload pronunciation</p>
-                            <p className="text-sm text-gray-400">MP3 format - Help us say your name right!</p>
-                          </>
-                        )}
-                      </div>
-                    </label>
-                  </div>
-                  {pronunciationPreviewUrl && (
-                    <div className="mt-4 p-4 bg-black/40 rounded-lg border border-purple-500/30">
-                      <p className="text-sm text-gray-300 mb-2">Preview your pronunciation:</p>
-                      <audio key={pronunciationPreviewUrl} controls className="w-full" style={{ height: "40px" }}>
-                        <source src={pronunciationPreviewUrl} type="audio/mpeg" />
-                        Your browser does not support the audio element.
-                      </audio>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2">
+                <div className="space-y-2" ref={instagramRef}>
                   <Label htmlFor="instagram" className="text-white text-base">
                     Instagram Handle *
                   </Label>
@@ -514,26 +575,16 @@ function CheckoutForm() {
                     name="instagram"
                     type="text"
                     placeholder="@yourusername"
-                    className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
                     required
+                    onChange={() => setFieldErrors((prev) => ({ ...prev, instagram: false }))}
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                      fieldErrors.instagram ? "border-red-500 border-2" : "border-white/20"
+                    }`}
                   />
+                  {fieldErrors.instagram && <p className="text-red-500 text-sm mt-1">Instagram handle is required</p>}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white text-base">
-                    Email Address *
-                  </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
+                <div className="space-y-2" ref={phoneRef}>
                   <Label htmlFor="phone" className="text-white text-base">
                     Contact Number *
                   </Label>
@@ -542,16 +593,38 @@ function CheckoutForm() {
                     name="phone"
                     type="tel"
                     placeholder="+1 (555) 000-0000"
-                    className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
                     required
+                    onChange={() => setFieldErrors((prev) => ({ ...prev, phone: false }))}
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                      fieldErrors.phone ? "border-red-500 border-2" : "border-white/20"
+                    }`}
                   />
+                  {fieldErrors.phone && <p className="text-red-500 text-sm mt-1">Contact number is required</p>}
+                </div>
+
+                <div className="space-y-2" ref={emailRef}>
+                  <Label htmlFor="email" className="text-white text-base">
+                    Email Address *
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    required
+                    onChange={() => setEmailError(false)}
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                      emailError ? "border-red-500 border-2" : "border-white/20"
+                    }`}
+                  />
+                  {emailError && <p className="text-red-500 text-sm mt-1">Please enter a valid email address</p>}
                 </div>
               </div>
 
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-[#E93CAC]">Payment Information</h2>
 
-                <div className="space-y-2">
+                <div className="space-y-2" ref={cardNameRef}>
                   <Label htmlFor="cardName" className="text-white text-base">
                     Cardholder Name *
                   </Label>
@@ -560,34 +633,86 @@ function CheckoutForm() {
                     name="cardName"
                     type="text"
                     placeholder="John Doe"
-                    className="bg-black/30 border-white/20 text-white placeholder:text-gray-500 focus:border-pink-500"
                     required
+                    onChange={() => setFieldErrors((prev) => ({ ...prev, cardName: false }))}
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
+                      fieldErrors.cardName ? "border-red-500 border-2" : "border-white/20"
+                    }`}
                   />
+                  {fieldErrors.cardName && <p className="text-red-500 text-sm mt-1">Cardholder name is required</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-white text-base">Card Number *</Label>
                   <div className="relative">
-                    <div className="bg-black/30 border border-white/20 rounded-md p-3 pl-12 focus-within:border-pink-500 transition-colors pt-3.5 pb-3.5">
-                      <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
+                    <div
+                      className={`bg-black/30 border rounded-md p-3 pl-12 focus-within:border-pink-500 transition-colors pt-3.5 pb-3.5 ${
+                        cardElementErrors.cardNumber ? "border-red-500 border-2" : "border-white/20"
+                      }`}
+                    >
+                      <CardNumberElement
+                        options={CARD_ELEMENT_OPTIONS}
+                        onChange={(e) => {
+                          setCardElementComplete((prev) => ({ ...prev, cardNumber: e.complete }))
+                          setCardElementErrors((prev) => ({
+                            ...prev,
+                            cardNumber: e.error?.message || "",
+                          }))
+                        }}
+                      />
                     </div>
                     <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                   </div>
+                  {cardElementErrors.cardNumber && (
+                    <p className="text-red-500 text-sm mt-1">{cardElementErrors.cardNumber}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-white text-base">Expiry Date *</Label>
-                    <div className="bg-black/30 border border-white/20 rounded-md p-3 focus-within:border-pink-500 transition-colors">
-                      <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
+                    <div
+                      className={`bg-black/30 border rounded-md p-3 focus-within:border-pink-500 transition-colors ${
+                        cardElementErrors.cardExpiry ? "border-red-500 border-2" : "border-white/20"
+                      }`}
+                    >
+                      <CardExpiryElement
+                        options={CARD_ELEMENT_OPTIONS}
+                        onChange={(e) => {
+                          setCardElementComplete((prev) => ({ ...prev, cardExpiry: e.complete }))
+                          setCardElementErrors((prev) => ({
+                            ...prev,
+                            cardExpiry: e.error?.message || "",
+                          }))
+                        }}
+                      />
                     </div>
+                    {cardElementErrors.cardExpiry && (
+                      <p className="text-red-500 text-sm mt-1">{cardElementErrors.cardExpiry}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-white text-base">CVC *</Label>
-                    <div className="bg-black/30 border border-white/20 rounded-md p-3 focus-within:border-pink-500 transition-colors">
-                      <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
+                    <div
+                      className={`bg-black/30 border rounded-md p-3 focus-within:border-pink-500 transition-colors ${
+                        cardElementErrors.cardCvc ? "border-red-500 border-2" : "border-white/20"
+                      }`}
+                    >
+                      <CardCvcElement
+                        options={CARD_ELEMENT_OPTIONS}
+                        onChange={(e) => {
+                          setCardElementComplete((prev) => ({ ...prev, cardCvc: e.complete }))
+                          setCardElementErrors((prev) => ({
+                            ...prev,
+                            cardCvc: e.error?.message || "",
+                          }))
+                        }}
+                      />
                     </div>
+                    {cardElementErrors.cardCvc && (
+                      <p className="text-red-500 text-sm mt-1">{cardElementErrors.cardCvc}</p>
+                    )}
                   </div>
                 </div>
 
