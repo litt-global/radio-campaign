@@ -6,7 +6,6 @@ import Image from "next/image"
 import { Download, ArrowRight, X, LogOut, Loader2, Menu } from "lucide-react"
 import { getSubmissionsByPackage, updateSubmissionStatus } from "@/app/actions/admin"
 import { logout } from "@/app/actions/auth"
-import { StripeModeIndicator } from "@/components/stripe-mode-badge"
 
 type PageType = "spark" | "wave" | "prime" | "exec" | "icon"
 type ViewType = "new" | "programmed"
@@ -214,11 +213,6 @@ export default function AdminDashboard() {
               </button>
             ))}
           </nav>
-
-          <div className="mt-8 pt-6 border-t border-gray-800">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Payment Mode</p>
-            <StripeModeIndicator />
-          </div>
         </aside>
 
         {/* Mobile sidebar overlay */}
