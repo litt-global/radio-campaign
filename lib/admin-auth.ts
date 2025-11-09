@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 const ADMIN_SESSION_COOKIE = "admin_session"
 const ADMIN_CREDENTIALS = {
   email: "admin@littlive.com",
-  password: "1",
+  password: "codybaby123!",
 }
 
 export async function validateAdminCredentials(email: string, password: string): Promise<boolean> {

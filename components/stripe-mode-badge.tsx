@@ -1,7 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export function StripeModeIndicator() {
@@ -21,24 +21,17 @@ export function StripeModeIndicator() {
     fetchMode()
   }, [])
 
-  if (mode === "loading") {
+  // Don't show anything while loading or in live mode
+  if (mode === "loading" || mode === "live") {
     return null
   }
 
+  // Only show badge when in test mode
   if (mode === "test") {
     return (
       <Badge variant="outline" className="border-yellow-500 bg-yellow-500/10 text-yellow-500 text-xs font-semibold">
         <AlertCircle className="w-3 h-3 mr-1" />
         Test Mode
-      </Badge>
-    )
-  }
-
-  if (mode === "live") {
-    return (
-      <Badge variant="outline" className="border-green-500 bg-green-500/10 text-green-500 text-xs font-semibold">
-        <CheckCircle2 className="w-3 h-3 mr-1" />
-        Live Mode
       </Badge>
     )
   }
