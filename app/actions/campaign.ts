@@ -20,12 +20,14 @@ export async function saveCampaignPurchase(formData: {
   const supabase = await createClient()
 
   try {
+    const numericAmount = Number.parseFloat(formData.packagePrice)
+
     // Insert campaign purchase
     const { data: campaign, error: campaignError } = await supabase
       .from("campaigns_purchased")
       .insert({
         package_name: formData.packageName,
-        package_price: formData.packagePrice,
+        package_price: numericAmount,
         artist_name: formData.artistName,
         instagram_handle: formData.instagramHandle,
         email: formData.email,
@@ -39,7 +41,7 @@ export async function saveCampaignPurchase(formData: {
 
     const { error: paymentError } = await supabase.from("payments").insert({
       campaign_id: campaign.id,
-      amount: formData.packagePrice,
+      amount: numericAmount,
       cardholder_name: formData.cardName || "Stripe Customer",
       card_last_four: formData.cardLast4,
       payment_status: "completed",

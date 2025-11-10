@@ -315,9 +315,11 @@ function CheckoutForm() {
 
       setProcessingStep("Finalizing your campaign...")
 
+      const actualAmount = isTestPayment ? 1 : Number.parseFloat(packagePrice.replace(/[$,]/g, ""))
+
       const result = await saveCampaignPurchase({
         packageName,
-        packagePrice,
+        packagePrice: actualAmount.toString(),
         artistName: formData.get("artistName") as string,
         instagramHandle: formData.get("instagram") as string,
         email,
@@ -602,7 +604,7 @@ function CheckoutForm() {
                     placeholder="+1 (555) 000-0000"
                     required
                     onChange={() => setFieldErrors((prev) => ({ ...prev, phone: false }))}
-                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
                       fieldErrors.phone ? "border-red-500 border-2" : "border-white/20"
                     }`}
                   />
