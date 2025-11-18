@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Check } from "lucide-react"
+import { Check } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
 import Script from "next/script"
@@ -105,7 +105,7 @@ export default function Home() {
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
             className="absolute top-1/2 left-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            src="https://player.vimeo.com/video/1131972101?background=1&autoplay=1&loop=1&muted=1"
+            src="https://player.vimeo.com/video/1137944257?background=1&autoplay=1&loop=1&muted=1"
             title="Hero Background Video"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
@@ -141,7 +141,7 @@ export default function Home() {
             <div className="space-y-2">
               <p className="text-xl text-gray-300 md:text-2xl text-balance">
                 Air your track across 40 global radio stations and tap into over 2 million listening hours. This is your
-                chance to get your music heard by Akon and his label.
+                chance to get heard and seen by millions of online listeners.
               </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -253,19 +253,18 @@ export default function Home() {
           {/* Headline with glow effect */}
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white animate-fade-in leading-tight">
             <span className="inline-block animate-glow">
-              Every Campaign Submission Gets Reviewed by Akon & Konvict Kulture
+              Use the same system used by Akon and the Konvict Kulture label
             </span>
           </h2>
 
           {/* Subheadline */}
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 font-medium max-w-3xl mx-auto leading-relaxed animate-fade-in-delay-1 px-2">
-            All artists who purchase any LITT Live Radio Campaign will have their track personally reviewed by Akon and
-            his Head of A&R for potential signing opportunities with Konvict Kulture.
+            Akon and his label, Konvict Kulture, use LITT Live as one of their key platforms to break new artists. When they release a record, they run it through our network because it gets real listeners, real exposure, and real momentum.
           </p>
 
           {/* Supporting tagline */}
           <p className="text-xs sm:text-sm md:text-base text-[#E93CAC] uppercase tracking-wider font-semibold italic animate-fade-in-delay-2 px-2">
-            From Airplay to A&R — Your Shot at a Label Deal Starts Here.
+            You don't need to be signed to a label to use the exact same tools they do.
           </p>
 
           {/* CTA Button */}
