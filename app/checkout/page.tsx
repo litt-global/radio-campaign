@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2 } from "lucide-react"
+import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2 } from 'lucide-react'
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams } from 'next/navigation'
 import Image from "next/image"
 import { saveCampaignPurchase } from "@/app/actions/campaign"
 import { StripeModeIndicator } from "@/components/stripe-mode-badge"
@@ -450,6 +450,15 @@ function CheckoutForm() {
                       </div>
                     </label>
                   </div>
+                  {songPreviewUrl && (
+                    <div className="mt-4 p-4 bg-black/40 rounded-lg border border-pink-500/30">
+                      <p className="text-sm text-gray-300 mb-2">Preview your song:</p>
+                      <audio key={songPreviewUrl} controls className="w-full" style={{ height: "40px" }}>
+                        <source src={songPreviewUrl} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                      </audio>
+                    </div>
+                  )}
                   {fileErrors.song && <p className="text-red-500 text-sm mt-1">Please upload your song file</p>}
                 </div>
 
