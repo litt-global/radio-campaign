@@ -151,6 +151,18 @@ export default function Home() {
                   Buy a Campaign
                 </Button>
               </Link>
+              <a 
+                href="https://littlive.com/genres" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <Button
+                  size="lg"
+                  className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-6 text-lg font-semibold"
+                >
+                  Listen to LITT Live
+                </Button>
+              </a>
             </div>
 
             {/* Animated wave decoration */}
