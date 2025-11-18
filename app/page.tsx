@@ -356,10 +356,7 @@ export default function Home() {
 
             {/* Copyright */}
             <p className="text-sm text-gray-500">
-              <Link href="/admin/login" className="hover:text-gray-300 transition-colors cursor-pointer">
-                ©
-              </Link>{" "}
-              2025 LITT Live. All rights reserved.
+              © 2025 LITT Live. All rights reserved.
             </p>
           </div>
         </div>
