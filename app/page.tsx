@@ -143,6 +143,9 @@ export default function Home() {
                 Air your track across 40 global radio stations and tap into over 2 million listening hours. This is your
                 chance to get heard and seen by millions of online listeners.
               </p>
+              <p className="text-lg text-[#E93CAC] md:text-xl text-balance font-semibold italic">
+                From 1 spin to heavy rotation. Your road to super Stardom begins here!
+              </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link href="#campaigns">
