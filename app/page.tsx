@@ -349,6 +349,98 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Social Media Icons */}
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-sm text-gray-400">Follow Us</p>
+              <div className="flex items-center justify-center gap-6">
+                <a
+                  href="https://www.instagram.com/littxlive"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-opacity hover:opacity-80"
+                >
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Instagram_logo_litt_live-removebg-preview-qXtXz4qzgxwBmnoOFMHeMuMyGRqkmH.png"
+                    alt="Follow us on Instagram"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10"
+                  />
+                </a>
+                <a
+                  href="https://x.com/littxlive"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-opacity hover:opacity-80"
+                >
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/X_logo_litt_live-removebg-preview-IYSrwkhhmLyoOEiQMHLVC0SQM0jsNE.png"
+                    alt="Follow us on X"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10"
+                  />
+                </a>
+                <a
+                  href="https://www.facebook.com/littlive"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-opacity hover:opacity-80"
+                >
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Facebook_logo_litt_live-removebg-preview-juMo3q24SJj9sq1sOfQ6B97RJZ3DcT.png"
+                    alt="Follow us on Facebook"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10"
+                  />
+                </a>
+                <a
+                  href="https://www.youtube.com/@LITTLive"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-opacity hover:opacity-80"
+                >
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Youtube_logo_litt_live-removebg-preview-nWBJ51fAr1QmwASrFjJEPSGtl6xdXF.png"
+                    alt="Follow us on YouTube"
+                    width={40}
+                    height={40}
+                    className="h-10 w-10"
+                  />
+                </a>
+              </div>
+            </div>
+
+            {/* Contact email section */}
+            <div className="text-center">
+              <p className="text-sm text-gray-400">
+                Contact us:{" "}
+                <a 
+                  href="mailto:support@littlive.com" 
+                  className="text-[#E93CAC] hover:text-[#E93CAC]/80 transition-colors"
+                >
+                  support@littlive.com
+                </a>
+              </p>
+            </div>
+
+            {/* Terms of Service and Privacy Policy links */}
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              <Link 
+                href="/terms-of-service" 
+                className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors"
+              >
+                Terms of Service
+              </Link>
+              <Link 
+                href="/privacy-policy" 
+                className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+
             {/* Copyright */}
             <p className="text-sm text-gray-500">
               © 2025 LITT Live. All rights reserved.

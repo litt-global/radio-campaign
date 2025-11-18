@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2 } from 'lucide-react'
+import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2, X } from 'lucide-react'
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useSearchParams } from 'next/navigation'
@@ -22,6 +22,13 @@ import {
   useElements,
 } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -98,6 +105,81 @@ function CheckoutForm() {
   const cardNameRef = useRef<HTMLDivElement>(null)
 
   const [emailError, setEmailError] = useState(false)
+  const [showDemoScripts, setShowDemoScripts] = useState(false)
+
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
+
+  const [formData, setFormData] = useState({
+    artistName: "",
+    instagram: "",
+    phone: "",
+    email: "",
+    cardName: "",
+  })
+
+  useEffect(() => {
+    const savedData = sessionStorage.getItem("checkoutFormData")
+    if (savedData) {
+      const parsed = JSON.parse(savedData)
+      setFormData(parsed.formData || {})
+      setTermsAccepted(parsed.termsAccepted || false)
+      setPrivacyAccepted(parsed.privacyAccepted || false)
+      
+      // Set form field values
+      if (parsed.formData) {
+        const form = document.querySelector("form") as HTMLFormElement
+        if (form) {
+          Object.entries(parsed.formData).forEach(([key, value]) => {
+            const input = form.elements.namedItem(key) as HTMLInputElement
+            if (input) {
+              input.value = value as string
+            }
+          })
+        }
+      }
+      
+      // Clear the saved data after restoring
+      sessionStorage.removeItem("checkoutFormData")
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const form = document.querySelector("form") as HTMLFormElement
+      if (form) {
+        const currentFormData = {
+          artistName: (form.elements.namedItem("artistName") as HTMLInputElement)?.value || "",
+          instagram: (form.elements.namedItem("instagram") as HTMLInputElement)?.value || "",
+          phone: (form.elements.namedItem("phone") as HTMLInputElement)?.value || "",
+          email: (form.elements.namedItem("email") as HTMLInputElement)?.value || "",
+          cardName: (form.elements.namedItem("cardName") as HTMLInputElement)?.value || "",
+        }
+        
+        sessionStorage.setItem("checkoutFormData", JSON.stringify({
+          formData: currentFormData,
+          termsAccepted,
+          privacyAccepted,
+        }))
+      }
+    }
+
+    // Listen for navigation events
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    
+    // Also save on visibility change (when user switches tabs)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleBeforeUnload()
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [termsAccepted, privacyAccepted])
 
   useEffect(() => {
     return () => {
@@ -201,7 +283,7 @@ function CheckoutForm() {
     const hasCardErrors = cardErrors.cardNumber || cardErrors.cardExpiry || cardErrors.cardCvc
     const hasFieldErrors = Object.values(textFieldErrors).some((error) => error)
 
-    if (errors.song || errors.cover || errors.intro || !isEmailValid || hasCardErrors || hasFieldErrors) {
+    if (errors.song || errors.cover || errors.intro || !isEmailValid || hasCardErrors || hasFieldErrors || !termsAccepted || !privacyAccepted) {
       if (errors.song && songRef.current) {
         songRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
       } else if (errors.cover && coverRef.current) {
@@ -240,7 +322,7 @@ function CheckoutForm() {
         type: "card",
         card: cardNumberElement,
         billing_details: {
-          name: formData.get("cardName") as string,
+          name: formData.cardName,
         },
       })
 
@@ -320,15 +402,15 @@ function CheckoutForm() {
       const result = await saveCampaignPurchase({
         packageName,
         packagePrice: actualAmount.toString(),
-        artistName: formData.get("artistName") as string,
-        instagramHandle: formData.get("instagram") as string,
+        artistName: formData.artistName,
+        instagramHandle: formData.instagram,
         email,
-        phone: formData.get("phone") as string,
+        phone: formData.phone,
         songUrl,
         coverImageUrl: coverUrl,
         introLinerUrl: introUrl,
         pronunciationUrl,
-        cardName: formData.get("cardName") as string,
+        cardName: formData.cardName,
         cardLast4: cardLast4 || "0000",
         paymentIntentId: piId,
       })
@@ -506,7 +588,7 @@ function CheckoutForm() {
                           alt="Cover art preview"
                           width={200}
                           height={200}
-                          className="rounded-lg object-cover border-2 border-purple-500/50"
+                          className="rounded-lg object-cover border-2 border-purple-500/30"
                         />
                       </div>
                     </div>
@@ -518,6 +600,39 @@ function CheckoutForm() {
                   <Label htmlFor="intro" className="text-white text-base">
                     Artist Intro Liner (Audio) - Max 15 seconds *
                   </Label>
+                  <p className="text-sm text-gray-400 mb-2">
+                    Your intro liner must include one of the following phrases at some stage of your introduction: "... Im personally playing you my latest single", "... Im pleased to personally play you my latest single"
+                  </p>
+                  <Dialog open={showDemoScripts} onOpenChange={setShowDemoScripts}>
+                    <DialogTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mb-3 bg-pink-500/10 border-pink-500/30 text-pink-400 hover:bg-pink-500/20 hover:text-pink-300"
+                      >
+                        Demo Scripts
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-black/95 border-2 border-pink-500/30 text-white max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-[#E93CAC] mb-4">Demo Intro Liner Scripts</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-4">
+                          <p className="text-lg font-semibold text-pink-400 mb-2">Script 1:</p>
+                          <p className="text-white leading-relaxed">
+                            "Yo, what's up it's Akon — I'm personally presenting you my latest single 'Akon's Beautiful Day' right here on LITT Live."
+                          </p>
+                        </div>
+                        <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                          <p className="text-lg font-semibold text-purple-400 mb-2">Script 2:</p>
+                          <p className="text-white leading-relaxed">
+                            "Yo yo yo! It's your boy Akon, and I'm pleased to personally play you my latest single 'Akon's Beautiful Day' right here on LITT Live."
+                          </p>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   <div className="relative">
                     <Input
                       id="intro"
@@ -576,7 +691,11 @@ function CheckoutForm() {
                     type="text"
                     placeholder="Your artist name"
                     required
-                    onChange={() => setFieldErrors((prev) => ({ ...prev, artistName: false }))}
+                    defaultValue={formData.artistName}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, artistName: e.target.value }))
+                      setFieldErrors((prev) => ({ ...prev, artistName: false }))
+                    }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
                       fieldErrors.artistName ? "border-red-500 border-2" : "border-white/20"
                     }`}
@@ -594,8 +713,12 @@ function CheckoutForm() {
                     type="text"
                     placeholder="@yourusername"
                     required
-                    onChange={() => setFieldErrors((prev) => ({ ...prev, instagram: false }))}
-                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
+                    defaultValue={formData.instagram}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, instagram: e.target.value }))
+                      setFieldErrors((prev) => ({ ...prev, instagram: false }))
+                    }}
+                    className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
                       fieldErrors.instagram ? "border-red-500 border-2" : "border-white/20"
                     }`}
                   />
@@ -612,7 +735,11 @@ function CheckoutForm() {
                     type="tel"
                     placeholder="+1 (555) 000-0000"
                     required
-                    onChange={() => setFieldErrors((prev) => ({ ...prev, phone: false }))}
+                    defaultValue={formData.phone}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                      setFieldErrors((prev) => ({ ...prev, phone: false }))
+                    }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
                       fieldErrors.phone ? "border-red-500 border-2" : "border-white/20"
                     }`}
@@ -630,7 +757,11 @@ function CheckoutForm() {
                     type="email"
                     placeholder="your@email.com"
                     required
-                    onChange={() => setEmailError(false)}
+                    defaultValue={formData.email}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, email: e.target.value }))
+                      setEmailError(false)
+                    }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
                       emailError ? "border-red-500 border-2" : "border-white/20"
                     }`}
@@ -655,7 +786,11 @@ function CheckoutForm() {
                     type="text"
                     placeholder="John Doe"
                     required
-                    onChange={() => setFieldErrors((prev) => ({ ...prev, cardName: false }))}
+                    defaultValue={formData.cardName}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, cardName: e.target.value }))
+                      setFieldErrors((prev) => ({ ...prev, cardName: false }))
+                    }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
                       fieldErrors.cardName ? "border-red-500 border-2" : "border-white/20"
                     }`}
@@ -746,11 +881,91 @@ function CheckoutForm() {
                 </div>
               </div>
 
+              <div className="space-y-4 pt-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-pink-600 focus:ring-pink-500 cursor-pointer"
+                  />
+                  <label htmlFor="terms" className="text-sm text-gray-300 cursor-pointer">
+                    I agree to the{" "}
+                    <Link
+                      href="/terms-of-service"
+                      target="_blank"
+                      className="text-[#E93CAC] hover:text-[#E93CAC]/80 underline"
+                      onClick={() => {
+                        const form = document.querySelector("form") as HTMLFormElement
+                        if (form) {
+                          const currentFormData = {
+                            artistName: (form.elements.namedItem("artistName") as HTMLInputElement)?.value || "",
+                            instagram: (form.elements.namedItem("instagram") as HTMLInputElement)?.value || "",
+                            phone: (form.elements.namedItem("phone") as HTMLInputElement)?.value || "",
+                            email: (form.elements.namedItem("email") as HTMLInputElement)?.value || "",
+                            cardName: (form.elements.namedItem("cardName") as HTMLInputElement)?.value || "",
+                          }
+                          
+                          sessionStorage.setItem("checkoutFormData", JSON.stringify({
+                            formData: currentFormData,
+                            termsAccepted,
+                            privacyAccepted,
+                          }))
+                        }
+                      }}
+                    >
+                      Terms of Service
+                    </Link>{" "}
+                    *
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="privacy"
+                    checked={privacyAccepted}
+                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                    className="mt-1 h-5 w-5 rounded border-gray-300 text-pink-600 focus:ring-pink-500 cursor-pointer"
+                  />
+                  <label htmlFor="privacy" className="text-sm text-gray-300 cursor-pointer">
+                    I agree to the{" "}
+                    <Link
+                      href="/privacy-policy"
+                      target="_blank"
+                      className="text-[#E93CAC] hover:text-[#E93CAC]/80 underline"
+                      onClick={() => {
+                        const form = document.querySelector("form") as HTMLFormElement
+                        if (form) {
+                          const currentFormData = {
+                            artistName: (form.elements.namedItem("artistName") as HTMLInputElement)?.value || "",
+                            instagram: (form.elements.namedItem("instagram") as HTMLInputElement)?.value || "",
+                            phone: (form.elements.namedItem("phone") as HTMLInputElement)?.value || "",
+                            email: (form.elements.namedItem("email") as HTMLInputElement)?.value || "",
+                            cardName: (form.elements.namedItem("cardName") as HTMLInputElement)?.value || "",
+                          }
+                          
+                          sessionStorage.setItem("checkoutFormData", JSON.JSON.stringify({
+                            formData: currentFormData,
+                            termsAccepted,
+                            privacyAccepted,
+                          }))
+                        }
+                      }}
+                    >
+                      Privacy Policy
+                    </Link>{" "}
+                    *
+                  </label>
+                </div>
+              </div>
+
               <Button
                 type="submit"
                 size="lg"
-                className="w-full bg-[#E93CAC] text-white hover:bg-[#E93CAC]/90 font-bold text-lg py-6"
-                disabled={isProcessing || !stripe}
+                className="w-full bg-[#E93CAC] text-white hover:bg-[#E93CAC]/90 font-bold text-lg py-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isProcessing || !stripe || !termsAccepted || !privacyAccepted}
               >
                 {isProcessing ? (
                   <span className="flex items-center justify-center gap-2">
@@ -761,10 +976,6 @@ function CheckoutForm() {
                   `Purchase ${packageName} - ${isTestPayment ? "$1" : packagePrice}`
                 )}
               </Button>
-
-              <p className="text-center text-sm text-gray-400">
-                By completing this purchase, you agree to our Terms of Service and Privacy Policy
-              </p>
             </form>
           </Card>
         </div>
