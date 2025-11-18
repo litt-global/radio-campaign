@@ -152,7 +152,7 @@ export default function Home() {
                 </Button>
               </Link>
               <a 
-                href="https://littlive.com/genres" 
+                href="https://littlive.com/HipHopX" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
