@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
 import Link from "next/link"
-import { ArrowLeft } from 'lucide-react'
-import { useEffect } from 'react'
+import { ArrowLeft } from "lucide-react"
+import { useEffect } from "react"
 
 export default function TermsOfService() {
   useEffect(() => {
@@ -19,10 +19,10 @@ export default function TermsOfService() {
           <ArrowLeft className="w-5 h-5" />
           Back to Home
         </Link>
-        
+
         <div className="bg-black/40 backdrop-blur-sm rounded-lg p-6 md:p-10">
           <h1 className="text-3xl md:text-4xl font-bold mb-4 text-[#FF1CF7]">LITT LIVE PTY LTD – TERMS OF SERVICE</h1>
-          
+
           <div className="space-y-2 mb-8 text-sm text-gray-400">
             <p>ABN 92 661 906 270</p>
             <p>Effective Date: 18 November 2025</p>
@@ -30,12 +30,13 @@ export default function TermsOfService() {
 
           <div className="prose prose-invert max-w-none space-y-6 text-gray-300">
             <p className="text-base leading-relaxed">
-              These Terms of Service ("Terms") govern your use of music.littlive.com and all services, digital products, promotions, and radio packages offered by LITT Live Pty Ltd ("LITT Live", "we", "us", "our").
+              These Terms of Service ("Terms") govern your use of music.littlive.com and all services, digital products,
+              promotions, and radio packages offered by LITT Live Pty Ltd ("LITT Live", "we", "us", "our").
             </p>
-            
+
             <p className="text-base leading-relaxed font-semibold text-white">
-              By purchasing any package, uploading any content, or using any LITT Live service, you agree to be legally bound by these Terms.
-              If you do not agree, do not purchase or submit content.
+              By purchasing any package, uploading any content, or using any LITT Live service, you agree to be legally
+              bound by these Terms. If you do not agree, do not purchase or submit content.
             </p>
 
             <section className="space-y-3">
@@ -44,14 +45,19 @@ export default function TermsOfService() {
               <p>By using the platform, you represent that:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>You have the legal capacity to enter into this agreement; or</li>
-                <li>If you are under 18, a parent/guardian/manager has approved your participation and agrees to these Terms on your behalf.</li>
+                <li>
+                  If you are under 18, a parent/guardian/manager has approved your participation and agrees to these
+                  Terms on your behalf.
+                </li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="text-2xl font-bold text-[#FF1CF7] mt-8">2. Services & Packages</h2>
-              <p>LITT Live offers the following promotional packages ("Packages"), each running for a 30-day campaign:</p>
-              
+              <p>
+                LITT Live offers the following promotional packages ("Packages"), each running for a 30-day campaign:
+              </p>
+
               <div className="space-y-6 mt-4">
                 <div className="bg-black/30 p-4 rounded-lg">
                   <h3 className="text-xl font-bold text-white mb-2">SPARK – $499</h3>
@@ -65,8 +71,8 @@ export default function TermsOfService() {
                 </div>
 
                 <div className="bg-black/30 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">WAVE – $999</h3>
-                  <p className="italic mb-2">Your voice. Your song. Your wave.</p>
+                  <h3 className="text-xl font-bold text-white mb-2">PRIME – $999</h3>
+                  <p className="italic mb-2">Prime time presence.</p>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Airplay on 2 genre-matched stations</li>
                     <li>6 plays/day × 30 days = 180 plays</li>
@@ -77,8 +83,8 @@ export default function TermsOfService() {
                 </div>
 
                 <div className="bg-black/30 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">PRIME – $1,999</h3>
-                  <p className="italic mb-2">Prime time presence.</p>
+                  <h3 className="text-xl font-bold text-white mb-2">EXEC – $1,999</h3>
+                  <p className="italic mb-2">Sound like a star. Move like an exec.</p>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Airplay on 3 genre-matched stations</li>
                     <li>8 plays/day × 30 days = 240 plays</li>
@@ -89,8 +95,8 @@ export default function TermsOfService() {
                 </div>
 
                 <div className="bg-black/30 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">EXEC – $2,999</h3>
-                  <p className="italic mb-2">Sound like a star. Move like an exec.</p>
+                  <h3 className="text-xl font-bold text-white mb-2">ICON – $2,999</h3>
+                  <p className="italic mb-2">Icon energy – your voice across the network.</p>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Airplay on 4 genre-matched stations</li>
                     <li>12 plays/day × 30 days = 360 plays</li>
@@ -102,8 +108,8 @@ export default function TermsOfService() {
                 </div>
 
                 <div className="bg-black/30 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">ICON – $4,999</h3>
-                  <p className="italic mb-2">Icon energy – your voice across the network.</p>
+                  <h3 className="text-xl font-bold text-white mb-2">STAR MAKER – $4,999</h3>
+                  <p className="italic mb-2">The title says it all - Star Maker.</p>
                   <ul className="list-disc pl-6 space-y-1">
                     <li>Airplay on 5 genre-matched stations</li>
                     <li>24 plays/day × 30 days = 720 plays</li>
@@ -116,14 +122,17 @@ export default function TermsOfService() {
                   </ul>
                 </div>
               </div>
-              
+
               <p className="mt-4">Packages may be updated, varied, or amended at any time without notice.</p>
             </section>
 
             <section className="space-y-3">
               <h2 className="text-2xl font-bold text-[#FF1CF7] mt-8">3. Submission Standards & Right to Refuse</h2>
               <p>LITT Live retains full editorial and programming control.</p>
-              <p>We may refuse, decline, suspend, or remove any submitted content at any time for any reason, including but not limited to:</p>
+              <p>
+                We may refuse, decline, suspend, or remove any submitted content at any time for any reason, including
+                but not limited to:
+              </p>
               <ul className="list-disc pl-6 space-y-1">
                 <li>Poor audio quality</li>
                 <li>Unsuitable content</li>
@@ -136,7 +145,10 @@ export default function TermsOfService() {
                 <li>Any reason determined by LITT Live programmers</li>
               </ul>
               <p className="mt-3">LITT Live is not required to provide an explanation for refusal.</p>
-              <p>If content is refused before the campaign begins, you will receive a 100% refund. If refusal occurs after the campaign begins, refunds may be denied at LITT Live's discretion.</p>
+              <p>
+                If content is refused before the campaign begins, you will receive a 100% refund. If refusal occurs
+                after the campaign begins, refunds may be denied at LITT Live's discretion.
+              </p>
             </section>
 
             <section className="space-y-3">
@@ -158,7 +170,10 @@ export default function TermsOfService() {
 
             <section className="space-y-3">
               <h2 className="text-2xl font-bold text-[#FF1CF7] mt-8">5. Rights Granted to LITT Live</h2>
-              <p>By uploading or submitting any audio, artwork, video, voice liner, promotional material, or related files ("Content"), you grant LITT Live a:</p>
+              <p>
+                By uploading or submitting any audio, artwork, video, voice liner, promotional material, or related
+                files ("Content"), you grant LITT Live a:
+              </p>
               <ul className="list-disc pl-6 space-y-1">
                 <li>Fully-paid</li>
                 <li>Royalty-free</li>
@@ -192,7 +207,10 @@ export default function TermsOfService() {
                 <li>Rotation changes</li>
                 <li>Genre-matching decisions</li>
               </ul>
-              <p className="mt-3">LITT Live always aims to achieve the best possible audience exposure but makes no guarantees regarding audience size or outcomes.</p>
+              <p className="mt-3">
+                LITT Live always aims to achieve the best possible audience exposure but makes no guarantees regarding
+                audience size or outcomes.
+              </p>
             </section>
 
             <section className="space-y-3">
@@ -237,7 +255,10 @@ export default function TermsOfService() {
                 <li>All samples, stems, beats, vocals, and AI elements are properly licensed</li>
                 <li>Your Content complies with all applicable laws</li>
               </ul>
-              <p className="mt-3">You agree to indemnify, defend, and hold harmless LITT Live, its directors, staff, and partners from any claims or damages arising from:</p>
+              <p className="mt-3">
+                You agree to indemnify, defend, and hold harmless LITT Live, its directors, staff, and partners from any
+                claims or damages arising from:
+              </p>
               <ul className="list-disc pl-6 space-y-1">
                 <li>Your Content</li>
                 <li>Copyright disputes</li>
@@ -310,7 +331,10 @@ export default function TermsOfService() {
             <section className="space-y-3">
               <h2 className="text-2xl font-bold text-[#FF1CF7] mt-8">14. Governing Law & Jurisdiction</h2>
               <p>These Terms are governed by the laws of Western Australia.</p>
-              <p>You agree that all disputes must be brought exclusively in a Western Australian court, and you submit to its jurisdiction.</p>
+              <p>
+                You agree that all disputes must be brought exclusively in a Western Australian court, and you submit to
+                its jurisdiction.
+              </p>
             </section>
 
             <section className="space-y-3">
@@ -329,8 +353,11 @@ export default function TermsOfService() {
 
             <section className="space-y-3">
               <h2 className="text-2xl font-bold text-[#FF1CF7] mt-8">16. Agreement Between You and LITT Live</h2>
-              <p>By purchasing any package or uploading any Content, you enter into a legally binding agreement with LITT Live Pty Ltd (ABN 92 661 906 270).</p>
-              
+              <p>
+                By purchasing any package or uploading any Content, you enter into a legally binding agreement with LITT
+                Live Pty Ltd (ABN 92 661 906 270).
+              </p>
+
               <h3 className="text-xl font-bold text-white mt-4">16.1 Your Obligations</h3>
               <p>You agree to:</p>
               <ul className="list-disc pl-6 space-y-1">
@@ -361,10 +388,16 @@ export default function TermsOfService() {
               </ul>
 
               <h3 className="text-xl font-bold text-white mt-4">16.4 Entire Agreement</h3>
-              <p>These Terms constitute the entire agreement between you and LITT Live and override any previous written or spoken communication.</p>
+              <p>
+                These Terms constitute the entire agreement between you and LITT Live and override any previous written
+                or spoken communication.
+              </p>
 
               <h3 className="text-xl font-bold text-white mt-4">16.5 Amendments</h3>
-              <p>LITT Live may update these Terms at any time. Continuing to use the platform after updates constitutes acceptance.</p>
+              <p>
+                LITT Live may update these Terms at any time. Continuing to use the platform after updates constitutes
+                acceptance.
+              </p>
 
               <h3 className="text-xl font-bold text-white mt-4">16.6 Severability</h3>
               <p>If any clause is deemed unenforceable, the remainder of the Terms remain fully valid.</p>
@@ -372,10 +405,7 @@ export default function TermsOfService() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-gray-700">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-[#FF1CF7] hover:text-white transition-colors"
-            >
+            <Link href="/" className="inline-flex items-center gap-2 text-[#FF1CF7] hover:text-white transition-colors">
               <ArrowLeft className="w-5 h-5" />
               Back to Home
             </Link>

@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Check } from 'lucide-react'
+import { Check } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import Script from "next/script"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AkonModal } from "@/components/akon-modal"
+import { TrustedByLegendsBackground } from "@/components/trusted-by-legends-background"
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -17,56 +18,56 @@ export default function Home() {
       name: "SPARK",
       price: "$499",
       period: "30 day campaign",
-      quote: "Your first spins. Your voice on air.",
+      quote: "Your first promos. Your voice live on air.",
       color: "from-pink-500/20 to-purple-500/20",
       borderColor: "border-pink-500/50",
       features: [
-        "Airplay on 1 genre-matched station",
-        "3 plays per day × 30 days = 90 plays",
+        "Promotion on 1 genre-matched station",
+        "3 promos per day × 30 days = 90 promos",
         "Self recorded intro liner before your song plays",
         "1× IG Reel feature on @LITTXLIVE 30 days",
       ],
     },
     {
-      name: "WAVE",
+      name: "PRIME",
       price: "$999",
       period: "30 day campaign",
-      quote: "Your voice. Your song. Your wave.",
+      quote: "Prime time presence.",
       color: "from-purple-500/20 to-pink-500/20",
       borderColor: "border-purple-500/50",
       features: [
-        "Airplay on 2 genre-matched stations",
-        "6 plays/day x 30 days = 180 plays",
+        "Promotion on 2 genre-matched stations",
+        "6 promos/day x 30 days = 180 promos",
         "Self recorded intro liner before your song plays",
         "2 x IG Reel features on @LITTXLIVE 30 days",
         "Feature in LITT Live News drop to email base of 400,000+ emails",
       ],
     },
     {
-      name: "PRIME",
+      name: "EXEC",
       price: "$1,999",
       period: "30 day campaign",
-      quote: "Prime time presence.",
+      quote: "Sound like a star. Move like an exec.",
       color: "from-pink-500/30 to-purple-600/30",
       borderColor: "border-pink-500/60",
       features: [
-        "Airplay on 3 genre-matched stations",
-        "8 plays/day × 30 days = 240 plays",
+        "Promotion on 3 genre-matched stations",
+        "9 promos/day × 30 days = 270 promos",
         "Self recorded intro liner before your song plays",
         "Homepage carousel feature - 7 days (web + app)",
         "3 x IG Reel features on @LITTXLIVE 30 days",
       ],
     },
     {
-      name: "EXEC",
+      name: "ICON",
       price: "$2,999",
       period: "30 day campaign",
-      quote: "Sound like a star. Move like an exec.",
+      quote: "Icon energy – your voice across the network.",
       color: "from-purple-600/30 to-pink-600/30",
       borderColor: "border-purple-500/60",
       features: [
-        "Airplay on 4 genre-matched stations",
-        "12 plays / day x 30 days = 360 plays",
+        "Promotion on 4 genre-matched stations",
+        "12 promos / day x 30 days = 360 promos",
         "Self recorded intro liner before your song plays",
         "Homepage carousel feature - 14 days (web + app)",
         "4 x IG Reel features on @LITTXLIVE 30 days",
@@ -74,15 +75,15 @@ export default function Home() {
       ],
     },
     {
-      name: "ICON",
+      name: "STAR MAKER",
       price: "$4,999",
       period: "30 day campaign",
-      quote: "Icon energy – your voice across the network.",
+      quote: "The title says it all - Star Maker.",
       color: "from-pink-600/40 to-purple-700/40",
       borderColor: "border-pink-500/70",
       features: [
-        "Airplay on 5 genre-matched stations",
-        "24 plays / day x 30 days = 720 plays",
+        "Promotion on 5 genre-matched stations",
+        "24 promos / day x 30 days = 720 promos",
         "Self recorded intro liner before your song plays",
         "Homepage carousel feature - 30 days (web + app)",
         "5 x IG Reel features on @LITTXLIVE 30 days",
@@ -92,6 +93,10 @@ export default function Home() {
       ],
     },
   ]
+
+  useEffect(() => {
+    // Add any side effects here if needed
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-[#2B0F45] to-black text-white">
@@ -135,11 +140,11 @@ export default function Home() {
             </h1>
             <div className="space-y-2">
               <p className="text-xl text-gray-300 md:text-2xl text-balance">
-                Air your track across 40 global radio stations and tap into over 2 million listening hours. This is your
-                chance to get heard and seen by millions of online listeners.
+                Promote your music across 40 global digital radio stations and tap into over 2 million listening hours.
+                This is your chance to get heard and seen by millions online!
               </p>
               <p className="text-lg text-[#E93CAC] md:text-xl text-balance font-semibold italic">
-                From 1 spin to heavy rotation. Your road to super Stardom begins here!
+                From light promotion to heavy promotion. Your road to super stardom begins here!
               </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -151,11 +156,7 @@ export default function Home() {
                   Buy a Campaign
                 </Button>
               </Link>
-              <a 
-                href="https://littlive.com/HipHopX" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
+              <a href="https://littlive.com/HipHopX" target="_blank" rel="noopener noreferrer">
                 <Button
                   size="lg"
                   className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-6 text-lg font-semibold"
@@ -260,34 +261,19 @@ export default function Home() {
 
         {/* Content */}
         <div className="relative container mx-auto max-w-5xl h-full min-h-screen md:min-h-full flex flex-col justify-center items-center text-center space-y-4 sm:space-y-6 px-4 sm:px-6 py-12 sm:py-16">
-          {/* Headline with glow effect */}
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white animate-fade-in leading-tight">
-            <span className="inline-block animate-glow">
-              Use the same system used by Akon and the Konvict Kulture label
-            </span>
+            <span className="inline-block animate-glow">WIN YOURSELF A FEATURE WITH THE LEGENDARY AKON</span>
           </h2>
 
-          {/* Subheadline */}
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 font-medium max-w-3xl mx-auto leading-relaxed animate-fade-in-delay-1 px-2">
-            Akon and his label, Konvict Kulture, use LITT Live as one of their key platforms to break new artists. When they release a record, they run it through our network because it gets real listeners, real exposure, and real momentum.
+            Your campaign isn't just promo - It's a direct audition for a collaboration with Akon. He listens. He picks.
+            One artist gets the feature of a lifetime....Lock in your campaign today before someone else takes your
+            spot.
           </p>
 
-          {/* Supporting tagline */}
           <p className="text-xs sm:text-sm md:text-base text-[#E93CAC] uppercase tracking-wider font-semibold italic animate-fade-in-delay-2 px-2">
-            You don't need to be signed to a label to use the exact same tools they do.
+            Only One Will Make It. Is it you?
           </p>
-
-          {/* CTA Button */}
-          <div className="pt-2 sm:pt-4 animate-fade-in-delay-3">
-            <Link href="#campaigns">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] text-white hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 hover:scale-105 px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-7 text-sm sm:text-base md:text-lg font-bold rounded-full"
-              >
-                Submit Your Song Now
-              </Button>
-            </Link>
-          </div>
 
           {/* Logos */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 md:gap-12 pt-6 sm:pt-8 animate-fade-in-delay-4">
@@ -322,10 +308,142 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 bg-black/50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-8">
+      {/* Dynamic Separator Section with Stats */}
+      <section className="relative py-20 overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#E93CAC]/20 via-black to-[#A74AC7]/20" />
+
+        {/* Animated diagonal lines */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#E93CAC] to-transparent animate-pulse" />
+          <div
+            className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#A74AC7] to-transparent animate-pulse"
+            style={{ animationDelay: "1s" }}
+          />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+          <h2 className="text-5xl md:text-7xl font-bold tracking-tight leading-relaxed mb-16">
+            <span className="text-white text-balance block font-normal">Join the Platform That's</span>
+            <span className="bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent text-balance block">
+              Breaking New Artists
+            </span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div className="text-center space-y-3">
+              <div className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent">
+                40<span className="text-4xl md:text-5xl font-normal">+</span>
+              </div>
+              <div className="text-gray-300 text-lg font-light">Global Radio Stations</div>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent">
+                2M<span className="text-4xl md:text-5xl font-normal">+</span>
+              </div>
+              <div className="text-gray-300 text-lg font-light">Listening Hours</div>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent">
+                1000<span className="text-4xl md:text-5xl font-normal">+</span>
+              </div>
+              <div className="text-gray-300 text-lg font-light">Artists Promoted</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom wave decoration */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg className="relative block w-full h-24" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0 C300,80 600,80 900,40 L1200,0 L1200,120 L0,120 Z" className="fill-black" />
+          </svg>
+        </div>
+      </section>
+
+      {/* Trusted by Legends Section with Rotating Backgrounds */}
+      <section className="relative py-16 overflow-hidden">
+        {/* Rotating Background Images */}
+        <TrustedByLegendsBackground />
+
+        {/* Content Overlay */}
+        <div className="relative z-10 container mx-auto px-4 max-w-7xl">
+          <div className="text-center space-y-8">
+            {/* Heading */}
+            <div className="space-y-3">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight max-w-5xl mx-auto drop-shadow-lg">
+                Trusted by <span className="text-[#E93CAC]">Legends</span>
+              </h2>
+              <p className="text-xl sm:text-2xl text-gray-100 font-light leading-relaxed max-w-4xl mx-auto drop-shadow-md">
+                Join the same system as Snoop Dogg, Ice Cube, Akon, and Shaq
+              </p>
+            </div>
+
+            {/* Artist Radio Logos */}
+            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-16 py-4">
+              <div className="group">
+                <div className="relative">
+                  <Image
+                    src="/images/doggystyle-201.jpeg"
+                    alt="Doggystyle Radio"
+                    width={160}
+                    height={160}
+                    className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
+                  />
+                </div>
+              </div>
+              <div className="group">
+                <div className="relative">
+                  <Image
+                    src="/images/big3.jpeg"
+                    alt="BIG3 Radio"
+                    width={160}
+                    height={160}
+                    className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
+                  />
+                </div>
+              </div>
+              <div className="group">
+                <div className="relative">
+                  <Image
+                    src="/images/konvict-20kulture-20radio.jpeg"
+                    alt="Konvict Kulture Radio"
+                    width={160}
+                    height={160}
+                    className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
+                  />
+                </div>
+              </div>
+              <div className="group">
+                <div className="relative">
+                  <Image
+                    src="/images/shaqfu.png"
+                    alt="ShaqFu Radio"
+                    width={160}
+                    height={160}
+                    className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Text */}
+            <div className="space-y-2 max-w-4xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-100 font-normal leading-relaxed drop-shadow-md">
+                This isn't just for icons or major labels who've already made it -
+              </p>
+              <p className="text-xl sm:text-2xl text-white font-semibold leading-relaxed drop-shadow-md">
+                It's for the next generation of superstars who are ready to take that step now and believe in
+                themselves!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer Section */}
+      <footer className="bg-black py-16">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="flex flex-col items-center gap-10">
             {/* App Store Badges */}
             <div className="flex flex-col items-center gap-4">
               <p className="text-sm text-gray-400">Available Everywhere</p>
@@ -372,7 +490,7 @@ export default function Home() {
                   className="transition-opacity hover:opacity-80"
                 >
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Instagram_logo_litt_live-removebg-preview-qXtXz4qzgxwBmnoOFMHeMuMyGRqkmH.png"
+                    src="/images/instagram-logo-litt-live-removebg-preview.png"
                     alt="Follow us on Instagram"
                     width={40}
                     height={40}
@@ -386,7 +504,7 @@ export default function Home() {
                   className="transition-opacity hover:opacity-80"
                 >
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/X_logo_litt_live-removebg-preview-IYSrwkhhmLyoOEiQMHLVC0SQM0jsNE.png"
+                    src="/images/x-logo-litt-live-removebg-preview.png"
                     alt="Follow us on X"
                     width={40}
                     height={40}
@@ -400,7 +518,7 @@ export default function Home() {
                   className="transition-opacity hover:opacity-80"
                 >
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Facebook_logo_litt_live-removebg-preview-juMo3q24SJj9sq1sOfQ6B97RJZ3DcT.png"
+                    src="/images/facebook-logo-litt-live-removebg-preview.png"
                     alt="Follow us on Facebook"
                     width={40}
                     height={40}
@@ -414,7 +532,7 @@ export default function Home() {
                   className="transition-opacity hover:opacity-80"
                 >
                   <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Youtube_logo_litt_live-removebg-preview-nWBJ51fAr1QmwASrFjJEPSGtl6xdXF.png"
+                    src="/images/youtube-logo-litt-live-removebg-preview.png"
                     alt="Follow us on YouTube"
                     width={40}
                     height={40}
@@ -428,8 +546,8 @@ export default function Home() {
             <div className="text-center">
               <p className="text-sm text-gray-400">
                 Contact us:{" "}
-                <a 
-                  href="mailto:support@littlive.com" 
+                <a
+                  href="mailto:support@littlive.com"
                   className="text-[#E93CAC] hover:text-[#E93CAC]/80 transition-colors"
                 >
                   support@littlive.com
@@ -439,24 +557,16 @@ export default function Home() {
 
             {/* Terms of Service and Privacy Policy links */}
             <div className="flex flex-wrap items-center justify-center gap-6">
-              <Link 
-                href="/terms-of-service" 
-                className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors"
-              >
+              <Link href="/terms-of-service" className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors">
                 Terms of Service
               </Link>
-              <Link 
-                href="/privacy-policy" 
-                className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors"
-              >
+              <Link href="/privacy-policy" className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors">
                 Privacy Policy
               </Link>
             </div>
 
             {/* Copyright */}
-            <p className="text-sm text-gray-500">
-              © 2025 LITT Live. All rights reserved.
-            </p>
+            <p className="text-sm text-gray-500">© 2025 LITT Live. All rights reserved.</p>
           </div>
         </div>
       </footer>

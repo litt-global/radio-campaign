@@ -7,7 +7,7 @@ import { Download, ArrowRight, X, LogOut, Loader2, Menu } from "lucide-react"
 import { getSubmissionsByPackage, updateSubmissionStatus } from "@/app/actions/admin"
 import { logout } from "@/app/actions/auth"
 
-type PageType = "spark" | "wave" | "prime" | "exec" | "icon"
+type PageType = "spark" | "prime" | "exec" | "icon" | "star-maker"
 type ViewType = "new" | "programmed"
 
 type Submission = {
@@ -41,10 +41,10 @@ export default function AdminDashboard() {
 
   const pages = [
     { id: "spark" as PageType, name: "Spark", color: "from-pink-500 to-purple-500" },
-    { id: "wave" as PageType, name: "Wave", color: "from-purple-500 to-pink-500" },
-    { id: "prime" as PageType, name: "Prime", color: "from-pink-600 to-purple-600" },
-    { id: "exec" as PageType, name: "Exec", color: "from-purple-600 to-pink-600" },
-    { id: "icon" as PageType, name: "Icon", color: "from-pink-700 to-purple-700" },
+    { id: "prime" as PageType, name: "Prime", color: "from-purple-500 to-pink-500" },
+    { id: "exec" as PageType, name: "Exec", color: "from-pink-600 to-purple-600" },
+    { id: "icon" as PageType, name: "Icon", color: "from-purple-600 to-pink-600" },
+    { id: "star-maker" as PageType, name: "Star Maker", color: "from-pink-700 to-purple-700" },
   ]
 
   useEffect(() => {
