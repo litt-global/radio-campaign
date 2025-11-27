@@ -61,12 +61,12 @@ export default function TermsOfService() {
               <div className="space-y-6 mt-4">
                 <div className="bg-black/30 p-4 rounded-lg">
                   <h3 className="text-xl font-bold text-white mb-2">SPARK – $499</h3>
-                  <p className="italic mb-2">Your first spins. Your voice on air.</p>
+                  <p className="italic mb-2">Your first promos. Your voice live on air.</p>
                   <ul className="list-disc pl-6 space-y-1">
-                    <li>Airplay on 1 genre-matched station</li>
-                    <li>3 plays/day × 30 days = 90 plays</li>
-                    <li>Self-recorded intro liner before the track</li>
-                    <li>1× Instagram Reel feature on @LITTXLIVE</li>
+                    <li>Promotion on 1 genre-matched station</li>
+                    <li>3 promos per day × 30 days = 90 promos</li>
+                    <li>Self recorded intro liner before your song plays</li>
+                    <li>1× IG Reel feature on @LITTXLIVE 30 days</li>
                   </ul>
                 </div>
 
@@ -74,11 +74,11 @@ export default function TermsOfService() {
                   <h3 className="text-xl font-bold text-white mb-2">PRIME – $999</h3>
                   <p className="italic mb-2">Prime time presence.</p>
                   <ul className="list-disc pl-6 space-y-1">
-                    <li>Airplay on 2 genre-matched stations</li>
-                    <li>6 plays/day × 30 days = 180 plays</li>
-                    <li>Self-recorded intro liner</li>
-                    <li>2× Instagram Reel features</li>
-                    <li>Feature in LITT Live News email (400,000+ subscribers)</li>
+                    <li>Promotion on 2 genre-matched stations</li>
+                    <li>6 promos/day x 30 days = 180 promos</li>
+                    <li>Self recorded intro liner before your song plays</li>
+                    <li>2 x IG Reel features on @LITTXLIVE 30 days</li>
+                    <li>Feature in LITT Live News drop to email base of 400,000+ emails</li>
                   </ul>
                 </div>
 
@@ -86,11 +86,11 @@ export default function TermsOfService() {
                   <h3 className="text-xl font-bold text-white mb-2">EXEC – $1,999</h3>
                   <p className="italic mb-2">Sound like a star. Move like an exec.</p>
                   <ul className="list-disc pl-6 space-y-1">
-                    <li>Airplay on 3 genre-matched stations</li>
-                    <li>8 plays/day × 30 days = 240 plays</li>
-                    <li>Self-recorded intro liner</li>
-                    <li>Homepage carousel feature – 7 days (website + app)</li>
-                    <li>3× Instagram Reel features</li>
+                    <li>Promotion on 3 genre-matched stations</li>
+                    <li>9 promos/day × 30 days = 270 promos</li>
+                    <li>Self recorded intro liner before your song plays</li>
+                    <li>Homepage carousel feature - 7 days (web + app)</li>
+                    <li>3 x IG Reel features on @LITTXLIVE 30 days</li>
                   </ul>
                 </div>
 
@@ -98,12 +98,12 @@ export default function TermsOfService() {
                   <h3 className="text-xl font-bold text-white mb-2">ICON – $2,999</h3>
                   <p className="italic mb-2">Icon energy – your voice across the network.</p>
                   <ul className="list-disc pl-6 space-y-1">
-                    <li>Airplay on 4 genre-matched stations</li>
-                    <li>12 plays/day × 30 days = 360 plays</li>
-                    <li>Self-recorded intro liner</li>
-                    <li>Homepage carousel feature – 14 days</li>
-                    <li>4× Instagram Reel features</li>
-                    <li>News email feature</li>
+                    <li>Promotion on 4 genre-matched stations</li>
+                    <li>12 promos / day x 30 days = 360 promos</li>
+                    <li>Self recorded intro liner before your song plays</li>
+                    <li>Homepage carousel feature - 14 days (web + app)</li>
+                    <li>4 x IG Reel features on @LITTXLIVE 30 days</li>
+                    <li>Feature in LITT Live News drop to email base of 400,000+ emails</li>
                   </ul>
                 </div>
 
@@ -111,14 +111,13 @@ export default function TermsOfService() {
                   <h3 className="text-xl font-bold text-white mb-2">STAR MAKER – $4,999</h3>
                   <p className="italic mb-2">The title says it all - Star Maker.</p>
                   <ul className="list-disc pl-6 space-y-1">
-                    <li>Airplay on 5 genre-matched stations</li>
-                    <li>24 plays/day × 30 days = 720 plays</li>
-                    <li>Self-recorded intro liner</li>
-                    <li>Homepage carousel feature – 30 days</li>
-                    <li>5× Instagram Reel features</li>
-                    <li>IG Collab Post – 30 days minimum</li>
-                    <li>News email feature</li>
-                    <li>30-second Akon-recorded promo, played once per day for 30 days</li>
+                    <li>Promotion on 5 genre-matched stations</li>
+                    <li>24 promos / day x 30 days = 720 promos</li>
+                    <li>Self recorded intro liner before your song plays</li>
+                    <li>Homepage carousel feature - 30 days (web + app)</li>
+                    <li>5 x IG Reel features on @LITTXLIVE 30 days</li>
+                    <li>IG Collab Post 30 Days Minimum</li>
+                    <li>Feature in LITT Live News drop to email base of 400,000+ emails</li>
                   </ul>
                 </div>
               </div>
