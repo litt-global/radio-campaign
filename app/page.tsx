@@ -89,7 +89,6 @@ export default function Home() {
         "5 x IG Reel features on @LITTXLIVE 30 days",
         "IG Collab Post 30 Days Minimum",
         "Feature in LITT Live News drop to email base of 400,000+ emails",
-        "30 second Akon recorded promo of your song programmed 1 time per day for the 30 day campaign",
       ],
     },
   ]
