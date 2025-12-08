@@ -14,9 +14,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing file information" }, { status: 400 })
     }
 
+    const sanitizedFileName = fileName
+      .replace(/[^\w\s.-]/g, "") // Remove special characters except dots, dashes, and underscores
+      .replace(/\s+/g, "-") // Replace spaces with dashes
+      .replace(/--+/g, "-") // Replace multiple dashes with single dash
+      .toLowerCase()
+
     const bucketName = "campaign-files"
 
-    const filePath = `${fileType}/${Date.now()}-${fileName}`
+    const filePath = `${fileType}/${Date.now()}-${sanitizedFileName}`
 
     const { data, error } = await supabase.storage.from(bucketName).createSignedUploadUrl(filePath)
 

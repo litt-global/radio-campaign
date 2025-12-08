@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2, X } from 'lucide-react'
+import { Music, ImageIcon, Mic, CheckCircle2, CreditCard, Loader2 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { saveCampaignPurchase } from "@/app/actions/campaign"
 import { StripeModeIndicator } from "@/components/stripe-mode-badge"
@@ -22,13 +22,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -110,7 +104,7 @@ function CheckoutForm() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
-  const [formData, setFormData] = useState({
+  const [formValues, setFormValues] = useState({
     artistName: "",
     instagram: "",
     phone: "",
@@ -122,10 +116,10 @@ function CheckoutForm() {
     const savedData = sessionStorage.getItem("checkoutFormData")
     if (savedData) {
       const parsed = JSON.parse(savedData)
-      setFormData(parsed.formData || {})
+      setFormValues(parsed.formData || {})
       setTermsAccepted(parsed.termsAccepted || false)
       setPrivacyAccepted(parsed.privacyAccepted || false)
-      
+
       // Set form field values
       if (parsed.formData) {
         const form = document.querySelector("form") as HTMLFormElement
@@ -138,7 +132,7 @@ function CheckoutForm() {
           })
         }
       }
-      
+
       // Clear the saved data after restoring
       sessionStorage.removeItem("checkoutFormData")
     }
@@ -155,18 +149,21 @@ function CheckoutForm() {
           email: (form.elements.namedItem("email") as HTMLInputElement)?.value || "",
           cardName: (form.elements.namedItem("cardName") as HTMLInputElement)?.value || "",
         }
-        
-        sessionStorage.setItem("checkoutFormData", JSON.stringify({
-          formData: currentFormData,
-          termsAccepted,
-          privacyAccepted,
-        }))
+
+        sessionStorage.setItem(
+          "checkoutFormData",
+          JSON.stringify({
+            formData: currentFormData,
+            termsAccepted,
+            privacyAccepted,
+          }),
+        )
       }
     }
 
     // Listen for navigation events
     window.addEventListener("beforeunload", handleBeforeUnload)
-    
+
     // Also save on visibility change (when user switches tabs)
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -243,16 +240,16 @@ function CheckoutForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
+    const form = new FormData(e.currentTarget)
+    const email = form.get("email") as string
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const isEmailValid = emailRegex.test(email)
 
     const textFieldErrors = {
-      artistName: !formData.get("artistName"),
-      instagram: !formData.get("instagram"),
-      phone: !formData.get("phone"),
-      cardName: !formData.get("cardName"),
+      artistName: !form.get("artistName"),
+      instagram: !form.get("instagram"),
+      phone: !form.get("phone"),
+      cardName: !form.get("cardName"),
     }
 
     const errors = {
@@ -283,7 +280,16 @@ function CheckoutForm() {
     const hasCardErrors = cardErrors.cardNumber || cardErrors.cardExpiry || cardErrors.cardCvc
     const hasFieldErrors = Object.values(textFieldErrors).some((error) => error)
 
-    if (errors.song || errors.cover || errors.intro || !isEmailValid || hasCardErrors || hasFieldErrors || !termsAccepted || !privacyAccepted) {
+    if (
+      errors.song ||
+      errors.cover ||
+      errors.intro ||
+      !isEmailValid ||
+      hasCardErrors ||
+      hasFieldErrors ||
+      !termsAccepted ||
+      !privacyAccepted
+    ) {
       if (errors.song && songRef.current) {
         songRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
       } else if (errors.cover && coverRef.current) {
@@ -322,7 +328,7 @@ function CheckoutForm() {
         type: "card",
         card: cardNumberElement,
         billing_details: {
-          name: formData.cardName,
+          name: form.get("cardName") as string,
         },
       })
 
@@ -402,15 +408,15 @@ function CheckoutForm() {
       const result = await saveCampaignPurchase({
         packageName,
         packagePrice: actualAmount.toString(),
-        artistName: formData.artistName,
-        instagramHandle: formData.instagram,
+        artistName: form.get("artistName") as string,
+        instagramHandle: form.get("instagram") as string,
         email,
-        phone: formData.phone,
+        phone: form.get("phone") as string,
         songUrl,
         coverImageUrl: coverUrl,
         introLinerUrl: introUrl,
         pronunciationUrl,
-        cardName: formData.cardName,
+        cardName: form.get("cardName") as string,
         cardLast4: cardLast4 || "0000",
         paymentIntentId: piId,
       })
@@ -601,7 +607,9 @@ function CheckoutForm() {
                     Artist Intro Liner (Audio) - Max 15 seconds *
                   </Label>
                   <p className="text-sm text-gray-400 mb-2">
-                    Your intro liner must include one of the following phrases at some stage of your introduction: "... Im personally playing you my latest single", "... Im pleased to personally play you my latest single"
+                    Your intro liner must include one of the following phrases at some stage of your introduction: "...
+                    Im personally playing you my latest single", "... Im pleased to personally play you my latest
+                    single"
                   </p>
                   <Dialog open={showDemoScripts} onOpenChange={setShowDemoScripts}>
                     <DialogTrigger asChild>
@@ -615,19 +623,23 @@ function CheckoutForm() {
                     </DialogTrigger>
                     <DialogContent className="bg-black/95 border-2 border-pink-500/30 text-white max-w-2xl">
                       <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-[#E93CAC] mb-4">Demo Intro Liner Scripts</DialogTitle>
+                        <DialogTitle className="text-2xl font-bold text-[#E93CAC] mb-4">
+                          Demo Intro Liner Scripts
+                        </DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="bg-pink-500/10 border border-pink-500/30 rounded-lg p-4">
                           <p className="text-lg font-semibold text-pink-400 mb-2">Script 1:</p>
                           <p className="text-white leading-relaxed">
-                            "Yo, what's up it's Akon — I'm personally presenting you my latest single 'Akon's Beautiful Day' right here on LITT Live."
+                            "Yo, what's up it's Akon — I'm personally presenting you my latest single 'Akon's Beautiful
+                            Day' right here on LITT Live."
                           </p>
                         </div>
                         <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
                           <p className="text-lg font-semibold text-purple-400 mb-2">Script 2:</p>
                           <p className="text-white leading-relaxed">
-                            "Yo yo yo! It's your boy Akon, and I'm pleased to personally play you my latest single 'Akon's Beautiful Day' right here on LITT Live."
+                            "Yo yo yo! It's your boy Akon, and I'm pleased to personally play you my latest single
+                            'Akon's Beautiful Day' right here on LITT Live."
                           </p>
                         </div>
                       </div>
@@ -691,9 +703,9 @@ function CheckoutForm() {
                     type="text"
                     placeholder="Your artist name"
                     required
-                    defaultValue={formData.artistName}
+                    defaultValue={formValues.artistName}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, artistName: e.target.value }))
+                      setFormValues((prev) => ({ ...prev, artistName: e.target.value }))
                       setFieldErrors((prev) => ({ ...prev, artistName: false }))
                     }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 ${
@@ -713,9 +725,9 @@ function CheckoutForm() {
                     type="text"
                     placeholder="@yourusername"
                     required
-                    defaultValue={formData.instagram}
+                    defaultValue={formValues.instagram}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, instagram: e.target.value }))
+                      setFormValues((prev) => ({ ...prev, instagram: e.target.value }))
                       setFieldErrors((prev) => ({ ...prev, instagram: false }))
                     }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
@@ -735,9 +747,9 @@ function CheckoutForm() {
                     type="tel"
                     placeholder="+1 (555) 000-0000"
                     required
-                    defaultValue={formData.phone}
+                    defaultValue={formValues.phone}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                      setFormValues((prev) => ({ ...prev, phone: e.target.value }))
                       setFieldErrors((prev) => ({ ...prev, phone: false }))
                     }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
@@ -757,9 +769,9 @@ function CheckoutForm() {
                     type="email"
                     placeholder="your@email.com"
                     required
-                    defaultValue={formData.email}
+                    defaultValue={formValues.email}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, email: e.target.value }))
+                      setFormValues((prev) => ({ ...prev, email: e.target.value }))
                       setEmailError(false)
                     }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
@@ -786,9 +798,9 @@ function CheckoutForm() {
                     type="text"
                     placeholder="John Doe"
                     required
-                    defaultValue={formData.cardName}
+                    defaultValue={formValues.cardName}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, cardName: e.target.value }))
+                      setFormValues((prev) => ({ ...prev, cardName: e.target.value }))
                       setFieldErrors((prev) => ({ ...prev, cardName: false }))
                     }}
                     className={`bg-black/30 text-white placeholder:text-gray-500 focus:border-pink-500 transition-colors ${
@@ -906,12 +918,15 @@ function CheckoutForm() {
                             email: (form.elements.namedItem("email") as HTMLInputElement)?.value || "",
                             cardName: (form.elements.namedItem("cardName") as HTMLInputElement)?.value || "",
                           }
-                          
-                          sessionStorage.setItem("checkoutFormData", JSON.stringify({
-                            formData: currentFormData,
-                            termsAccepted,
-                            privacyAccepted,
-                          }))
+
+                          sessionStorage.setItem(
+                            "checkoutFormData",
+                            JSON.stringify({
+                              formData: currentFormData,
+                              termsAccepted,
+                              privacyAccepted,
+                            }),
+                          )
                         }
                       }}
                     >
@@ -945,12 +960,15 @@ function CheckoutForm() {
                             email: (form.elements.namedItem("email") as HTMLInputElement)?.value || "",
                             cardName: (form.elements.namedItem("cardName") as HTMLInputElement)?.value || "",
                           }
-                          
-                          sessionStorage.setItem("checkoutFormData", JSON.JSON.stringify({
-                            formData: currentFormData,
-                            termsAccepted,
-                            privacyAccepted,
-                          }))
+
+                          sessionStorage.setItem(
+                            "checkoutFormData",
+                            JSON.stringify({
+                              formData: currentFormData,
+                              termsAccepted,
+                              privacyAccepted,
+                            }),
+                          )
                         }
                       }}
                     >
