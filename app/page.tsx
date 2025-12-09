@@ -261,17 +261,18 @@ export default function Home() {
         {/* Content */}
         <div className="relative container mx-auto max-w-5xl h-full min-h-screen md:min-h-full flex flex-col justify-center items-center text-center space-y-4 sm:space-y-6 px-4 sm:px-6 py-12 sm:py-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white animate-fade-in leading-tight">
-            <span className="inline-block animate-glow">WIN YOURSELF A FEATURE WITH THE LEGENDARY AKON</span>
+            <span className="inline-block animate-glow">
+              BEST WAY TO GET YOURSELF A FEATURE WITH THE LEGENDARY AKON
+            </span>
           </h2>
 
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 font-medium max-w-3xl mx-auto leading-relaxed animate-fade-in-delay-1 px-2">
-            Your campaign isn't just promo - It's a direct audition for a collaboration with Akon. He listens. He picks.
-            One artist gets the feature of a lifetime....Lock in your campaign today before someone else takes your
-            spot.
+            Your campaign isn't just promo - it's your shot at an Akon feature. If he hears something he loves, he moves
+            fast. Lock in your campaign now, cut through the noise, and get your track in front of Akon today!
           </p>
 
           <p className="text-xs sm:text-sm md:text-base text-[#E93CAC] uppercase tracking-wider font-semibold italic animate-fade-in-delay-2 px-2">
-            Only One Will Make It. Is it you?
+            IF YOU ARE SERIOUS. AKON WILL TAKE YOU SERIOUS.
           </p>
 
           {/* Logos */}
