@@ -429,7 +429,7 @@ export default function Home() {
             {/* Bottom Text */}
             <div className="space-y-2 max-w-4xl mx-auto">
               <p className="text-lg sm:text-xl text-gray-100 font-normal leading-relaxed drop-shadow-md">
-                This isn't just for icons or major labels who've already made it -
+                This isn't just for icons or major labels who've already made it
               </p>
               <p className="text-xl sm:text-2xl text-white font-semibold leading-relaxed drop-shadow-md">
                 It's for the next generation of superstars who are ready to take that step now and believe in
