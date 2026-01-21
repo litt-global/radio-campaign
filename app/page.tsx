@@ -9,9 +9,11 @@ import Script from "next/script"
 import { useState, useEffect } from "react"
 import { AkonModal } from "@/components/akon-modal"
 import { TrustedByLegendsBackground } from "@/components/trusted-by-legends-background"
+import { captureReferralCode } from "@/lib/referral-tracker"
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [referralCode, setReferralCode] = useState<string | null>(null)
 
   const packages = [
     {
@@ -94,7 +96,11 @@ export default function Home() {
   ]
 
   useEffect(() => {
-    // Add any side effects here if needed
+    const captured = captureReferralCode()
+    if (captured) {
+      setReferralCode(captured)
+      console.log("[v0] Referral code captured:", captured)
+    }
   }, [])
 
   return (
@@ -139,7 +145,7 @@ export default function Home() {
             </h1>
             <div className="space-y-2">
               <p className="text-xl text-gray-300 md:text-2xl text-balance">
-                Promote your music across 40 global digital radio stations and tap into over 2 million listening hours.
+                Promote your music across 40 global digital radio stations and tap into over 3 million listening hours.
                 This is your chance to get heard and seen by millions online!
               </p>
               <p className="text-lg text-[#E93CAC] md:text-xl text-balance font-semibold italic">
@@ -227,7 +233,9 @@ export default function Home() {
                 </ul>
 
                 {/* Buy Button */}
-                <Link href={`/checkout?package=${encodeURIComponent(pkg.name)}&price=${encodeURIComponent(pkg.price)}`}>
+                <Link
+                  href={`/checkout?package=${encodeURIComponent(pkg.name)}&price=${encodeURIComponent(pkg.price)}${referralCode ? `&referralCode=${encodeURIComponent(referralCode)}` : ""}`}
+                >
                   <Button className="w-full bg-[#E93CAC] text-white hover:bg-[#E93CAC]/90 font-semibold py-6">
                     Buy Now
                   </Button>
@@ -339,7 +347,7 @@ export default function Home() {
             </div>
             <div className="text-center space-y-3">
               <div className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-[#E93CAC] to-[#A74AC7] bg-clip-text text-transparent">
-                2M<span className="text-4xl md:text-5xl font-normal">+</span>
+                3M<span className="text-4xl md:text-5xl font-normal">+</span>
               </div>
               <div className="text-gray-300 text-lg font-light">Listening Hours</div>
             </div>
@@ -562,6 +570,9 @@ export default function Home() {
               </Link>
               <Link href="/privacy-policy" className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors">
                 Privacy Policy
+              </Link>
+              <Link href="/referrals" className="text-sm text-gray-400 hover:text-[#E93CAC] transition-colors">
+                Referral Partner Dashboard
               </Link>
             </div>
 

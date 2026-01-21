@@ -23,6 +23,7 @@ import {
 } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { getReferralCode } from "@/lib/referral-tracker"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -48,6 +49,8 @@ function CheckoutForm() {
   const packagePrice = searchParams.get("price") || "0"
   const testCode = searchParams.get("code")
   const isTestPayment = testCode === "uuddlrlrab"
+  const urlReferralCode = searchParams.get("referralCode")
+  const [referralCode, setReferralCode] = useState<string | null>(null)
 
   const stripe = useStripe()
   const elements = useElements()
@@ -186,6 +189,14 @@ function CheckoutForm() {
       if (pronunciationPreviewUrl) URL.revokeObjectURL(pronunciationPreviewUrl)
     }
   }, [songPreviewUrl, coverPreviewUrl, introPreviewUrl, pronunciationPreviewUrl])
+
+  useEffect(() => {
+    const code = urlReferralCode || getReferralCode()
+    if (code) {
+      setReferralCode(code)
+      console.log("[v0] Referral code for checkout:", code)
+    }
+  }, [urlReferralCode])
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -423,6 +434,31 @@ function CheckoutForm() {
 
       if (!result.success) {
         throw new Error(result.error || "Failed to save campaign")
+      }
+
+      if (referralCode && result.campaignId) {
+        console.log("[v0] Tracking referral conversion for code:", referralCode)
+        try {
+          const referralResponse = await fetch("/api/referral/track-conversion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              referralCode,
+              campaignId: result.campaignId,
+              orderAmount: actualAmount,
+            }),
+          })
+
+          if (referralResponse.ok) {
+            const referralData = await referralResponse.json()
+            console.log("[v0] Referral conversion tracked successfully:", referralData)
+          } else {
+            console.error("[v0] Failed to track referral conversion")
+          }
+        } catch (error) {
+          console.error("[v0] Error tracking referral:", error)
+          // Don't fail the checkout if referral tracking fails
+        }
       }
 
       setTimeout(() => {
