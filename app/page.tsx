@@ -149,7 +149,7 @@ export default function Home() {
                 This is your chance to get heard and seen by millions online!
               </p>
               <p className="text-lg text-[#E93CAC] md:text-xl text-balance font-semibold italic">
-                From light promotion to heavy promotion. Your road to super stardom begins here.
+                From light promotion to heavy promotion. Your road to super stardom begins here!
               </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
