@@ -110,7 +110,7 @@ export default function Home() {
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
             className="absolute top-1/2 left-1/2 w-[177.77vh] h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            src="https://player.vimeo.com/video/1137944257?background=1&autoplay=1&loop=1&muted=1"
+            src="https://player.vimeo.com/video/1176378790?background=1&autoplay=1&loop=1&muted=1"
             title="Hero Background Video"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
@@ -149,7 +149,7 @@ export default function Home() {
                 This is your chance to get heard and seen by millions online!
               </p>
               <p className="text-lg text-[#E93CAC] md:text-xl text-balance font-semibold italic">
-                From light promotion to heavy promotion. Your road to super stardom begins here!
+                From light promotion to heavy promotion. Your road to super stardom begins here.
               </p>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -279,10 +279,6 @@ export default function Home() {
             fast. Lock in your campaign now, cut through the noise, and get your track in front of Akon today!
           </p>
 
-          <p className="text-xs sm:text-sm md:text-base text-[#E93CAC] uppercase tracking-wider font-semibold italic animate-fade-in-delay-2 px-2">
-            IF YOU ARE SERIOUS. AKON WILL TAKE YOU SERIOUS.
-          </p>
-
           {/* Logos */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 md:gap-12 pt-6 sm:pt-8 animate-fade-in-delay-4">
             {/* LITT Live Logo */}
@@ -382,12 +378,23 @@ export default function Home() {
                 Trusted by <span className="text-[#E93CAC]">Legends</span>
               </h2>
               <p className="text-xl sm:text-2xl text-gray-100 font-light leading-relaxed max-w-4xl mx-auto drop-shadow-md">
-                Join the same system as Snoop Dogg, Ice Cube, Akon, and Shaq
+                Join the same system as Akon, Snoop Dogg, Ice Cube and Shaq!
               </p>
             </div>
 
             {/* Artist Radio Logos */}
             <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-16 py-4">
+              <div className="group">
+                <div className="relative">
+                  <Image
+                    src="/images/konvict-20kulture-20radio.jpeg"
+                    alt="Konvict Kulture Radio"
+                    width={160}
+                    height={160}
+                    className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
+                  />
+                </div>
+              </div>
               <div className="group">
                 <div className="relative">
                   <Image
@@ -404,17 +411,6 @@ export default function Home() {
                   <Image
                     src="/images/big3.jpeg"
                     alt="BIG3 Radio"
-                    width={160}
-                    height={160}
-                    className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
-                  />
-                </div>
-              </div>
-              <div className="group">
-                <div className="relative">
-                  <Image
-                    src="/images/konvict-20kulture-20radio.jpeg"
-                    alt="Konvict Kulture Radio"
                     width={160}
                     height={160}
                     className="w-32 h-32 sm:w-40 sm:h-40 object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl rounded-2xl"
